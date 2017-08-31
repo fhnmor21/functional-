@@ -1,4 +1,4 @@
-g++flags = -std=c++14  -g
+g++flags = -std=c++14 -g
 #-O2 -Wall -pedantic -pthread
 
 curry_1:
