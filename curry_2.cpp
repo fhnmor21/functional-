@@ -5,7 +5,9 @@
 #include <iostream>
 #include <functional>
 
-// tuple apply - SOURCE: http://www.cppsamples.com/common-tasks/apply-tuple-to-function.html
+// tuple apply
+// SOURCES:     http://www.cppsamples.com/common-tasks/apply-tuple-to-function.html
+//              http://cppcodereviewers.com/more-generic-for_each_tuple/
 template<typename F, typename Tpl, size_t ...S >
 decltype(auto) apply_from_tuple_impl(F&& fn, Tpl&& t, std::index_sequence<S...>)
 {
