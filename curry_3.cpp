@@ -29,7 +29,7 @@ struct Onion
   {
     std::size_t constexpr index = (M-N);
     using A1 = typename std::tuple_element< index, Args>::type;
-    
+
     return [&](An an)
     {
       std::get< index >(args) = an;
@@ -37,6 +37,7 @@ struct Onion
     };
   }
 };
+
 
 template <size_t M, typename An>
 struct Onion<1, M, An>
@@ -47,10 +48,11 @@ struct Onion<1, M, An>
     return [&](An an)
     {
       std::get<M-1>(args) = an;
-      return apply_from_tuple(add4, args);
+      return apply_from_tuple(func, args);
     };
   }
 };
+
 
 template< typename R, typename... As >
 auto curry(R (*f) (As... as))
@@ -66,6 +68,7 @@ auto curry(R (*f) (As... as))
   return Onion< argsNum, argsNum, A1 >::rec( func, args );
 }
 
+
 int main()
 {
     std::tuple<int, int> numbers2(1,2);
@@ -75,6 +78,6 @@ int main()
     std::tuple<int, int, int, int> numbers4(1,2,3,4);
     std::cout <<  apply_from_tuple(add4, numbers4) << std::endl;
 
-    auto f4 = curry(add4);
-    std::cout << f4(40)(30)(20)(10) << std::endl;
+    auto f_ = curry(add3);
+    std::cout << f_(33)(22)(11) << std::endl;
 }
