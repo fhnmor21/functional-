@@ -2,50 +2,6 @@
 #include <iostream>
 #include "apply_tuple.hpp"
 
-template <size_t N, size_t M, typename An>
-struct Onion
-{
-  template <typename Func, typename Args >
-  static auto rec(Func func, Args args)
-  {
-    std::size_t constexpr index = M - N;
-    using A1 = typename std::tuple_element< index, Args>::type;
-    
-    return [&](An an)
-    {
-      std::get<index >(args) = an;
-      return Onion< N-1 , M, A1 >::rec( func, args );
-    };
-  }
-};
-
-template <size_t M, typename An>
-struct Onion<0, M, An>
-{
-  template <typename Func, typename Args >
-  static auto rec(Func func, Args args )
-  {
-    return [&](An an)
-    {
-      std::get<M-1>(args) = an;
-      return apply_from_tuple(func, args);
-    };
-  }
-};
-
-template< typename R, typename... As >
-auto curry(R (*f) (As... as))
-{
-  using Func = std::function< R(As...) >;
-  using Args = std::tuple< As... >;
-  using A1 = typename std::tuple_element<0, Args>::type;
-  std::size_t constexpr argsNum = sizeof... (As);
-
-  Args args;
-  Func func = f;
-
-  return Onion< argsNum-1, argsNum, A1 >::rec( func, args );
-}
 
 // test function
 int add2 (int a, int b)
@@ -63,6 +19,52 @@ int add4 (int a, float b, long c, double d)
     return a+b+c+d;
 }
 
+
+// ===
+template <size_t N, size_t M, typename An>
+struct Onion
+{
+  template <typename Func, typename Args >
+  static auto rec(Func func, Args args)
+  {
+    std::size_t constexpr index = (M-N);
+    using A1 = typename std::tuple_element< index, Args>::type;
+    
+    return [&](An an)
+    {
+      std::get< index >(args) = an;
+      return Onion< N-1 , M, A1 >::rec( func, args );
+    };
+  }
+};
+
+template <size_t M, typename An>
+struct Onion<1, M, An>
+{
+  template <typename Func, typename Args >
+  static auto rec(Func func, Args args )
+  {
+    return [&](An an)
+    {
+      std::get<M-1>(args) = an;
+      return apply_from_tuple(add4, args);
+    };
+  }
+};
+
+template< typename R, typename... As >
+auto curry(R (*f) (As... as))
+{
+  using Func = std::function< R(As...) >;
+  using Args = std::tuple< As... >;
+  using A1 = typename std::tuple_element<0, Args>::type;
+  std::size_t constexpr argsNum = sizeof... (As);
+
+  Args args;
+  Func func = f;
+
+  return Onion< argsNum, argsNum, A1 >::rec( func, args );
+}
 
 int main()
 {
