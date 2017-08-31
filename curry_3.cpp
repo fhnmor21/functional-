@@ -11,9 +11,9 @@ struct Onion
     std::size_t constexpr index = M - N;
     using A1 = typename std::tuple_element< index, Args>::type;
     
-    // return [=](A1 a1)
+    // return [=](An an)
     // {
-    //   std::get< argsNum - N -1 >(args) = a1;
+    //   std::get<index >(args) = an;
       return Onion< N-1 , M, A1 >::rec( func, args );
     // };
   }
@@ -25,14 +25,12 @@ struct Onion<0, M, An>
   template <typename Func, typename Args >
   static auto rec(Func func, Args args )
   {
-    using A1 = typename std::tuple_element<0, Args>::type;
-    
-    return [=](A1 a1)
-    {
-      return nullptr;
+    // return [=](A1 a1)
+    // {
+      // return nullptr;
       // std::get<argsNum>(args) = a1;
-      // return apply_from_tuple(func, args);
-    };
+      return apply_from_tuple(func, args);
+    // };
   }
 };
 
