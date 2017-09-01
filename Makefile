@@ -11,7 +11,8 @@ curry_3:
 	g++ ${g++flags} curry_3.cpp -o curry_3.exe
 
 curry_4:
-	g++ ${g++flags} curry_4.cpp -o curry_4.exe
+	g++ ${g++flags} curry_4a.cpp -o curry_4a.exe
+#	g++ ${g++flags} curry_4.cpp -o curry_4.exe
 
 curry_5:
 	g++ ${g++flags} curry_5.cpp -o curry_5.exe

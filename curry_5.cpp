@@ -31,15 +31,16 @@ private:
     struct curry_arguments {};
     struct try_to_invoke_function : curry_arguments {};
 
-    // functions
     template< typename... Args >
-    auto dispatch( try_to_invoke_function, Args&&... args ) const  -> decltype( f_ (args...) )
+    auto dispatch( try_to_invoke_function, Args&&... args ) const
+      -> decltype( f_ (args...) )
     {
       return f_( std::forward<Args>(args)... );
     }
 
     template< typename... Args >
-    auto dispatch( curry_arguments, Args&&... args ) const  -> decltype( curry( f_, std::forward<Args>(args)... ) )
+    auto dispatch( curry_arguments, Args&&... args ) const
+      -> decltype( curry( f_, std::forward<Args>(args)... ) )
     {
         return curry( f_, std::forward<Args>(args)... );
     }
