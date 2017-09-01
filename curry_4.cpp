@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <iostream>
+#include <memory>
 #include "apply_tuple.hpp"
 
 
@@ -25,9 +26,11 @@ int add4 (int a, float b, long c, double d)
 template<size_t level, size_t argsNum, typename Func, typename Args>
 struct Closure
 {
-  std::size_t constexpr index = (argsNum - level);
-  using NextClosure = Closure<lelve-1, ArgsNum, Func, Args>;
-  using An = typename std::tuple_element< index, Args>::type;
+  static std::size_t constexpr index = (argsNum - level);
+
+  using NextClosure = Closure<level-1, argsNum, Func, Args>;
+  using An0 = typename std::tuple_element< index, Args>::type;
+  // using An1 = typename std::tuple_element< index + 1, Args >::type;
 
   // CTOR
   Closure(Func& func, Args& args)
@@ -38,31 +41,61 @@ struct Closure
     ;
   }
 
-  auto operator()(An an)
+  auto operator()(An0 an0)
   {
-    std::get<index>(args_m) = an;
-    return [&](A1 a1)
-    {
-      return closure_m->(a1);
-    };
+    std::get<index>(args_r) = an0;
+    return *closure_m;
+    // return [&](An1 an1)
+    // {
+    //   return closure_m->(an1);
+    // };
   }
 
   // Data
   Func& func_r;
   Args& args_r;
   std::unique_ptr< NextClosure > closure_m;
+};
 
+template<size_t argsNum, typename Func, typename Args>
+struct Closure<1, argsNum, Func, Args>
+{
+  static std::size_t constexpr index = (argsNum - 1);
+
+  using NextClosure = Closure<0, argsNum, Func, Args>;
+  using An0 = typename std::tuple_element< index, Args>::type;
+  // using An1 = typename std::tuple_element< index + 1, Args >::type;
+
+  // CTOR
+  Closure(Func& func, Args& args)
+    : func_r(func)
+    , args_r(args)
+  {
+    ;
+  }
+
+  auto operator()(An0 an0)
+  {
+    std::get<index>(args_r) = an0;
+    return apply_from_tuple(func_r, args_r);
+  }
+
+  // Data
+  Func& func_r;
+  Args& args_r;
+  std::unique_ptr< NextClosure > closure_m;
 };
 
 template < typename R, typename... As >
 struct Curry
 {
-  using Func = std:function<R(As...)>;
+  static std::size_t constexpr argsNum = sizeof... (As);
+
+  using Func = std::function<R(As...)>;
   using Args = std::tuple<As...>;
-  using NextClosure = Closure<argsNum-1, ArgsNum, Func, Args>;
+  using NextClosure = Closure<argsNum-1, argsNum, Func, Args>;
   using A0 = typename std::tuple_element< 0, Args >::type;
-  using A1 = typename std::tuple_element< 1, Args >::type;
-  std::size_t constexpr argsNum = sizeof... (As);
+  // using A1 = typename std::tuple_element< 1, Args >::type;
 
   // CTOR
   Curry(Func func)
@@ -73,13 +106,14 @@ struct Curry
   }
 
   // Methods
-  auto operator(A0 a0)()
+  auto operator()(A0 a0)
   {
     std::get<0>(args_m) = a0;
-    return [&](A1 a1)
-    {
-      return closure_m->(a1);
-    };
+    return *closure_m;
+    // return [&](A1 a1)
+    // {
+      // return closure_m->(a1);
+    // };
   }
 
   // Data
