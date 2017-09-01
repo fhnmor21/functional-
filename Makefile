@@ -13,6 +13,9 @@ curry_3:
 curry_4:
 	g++ ${g++flags} curry_4.cpp -o curry_4.exe
 
+curry_5:
+	g++ ${g++flags} curry_5.cpp -o curry_5.exe
+
 clean:
 	rm *.exe
 
