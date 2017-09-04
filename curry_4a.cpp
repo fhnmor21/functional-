@@ -22,14 +22,16 @@ struct Closure
     closure_m.reset( new NextClosure(func_r, args_r) );
   }
 
-  NextClosure& operator()(An0 an0)
+  NextClosure& operator()(An0& an0)
   {
     std::get<index>(args_r) = an0;
     return (*closure_m);
-    // return [&](An1 an1)
-    // {
-    //   return closure_m->(an1);
-    // };
+  }
+
+  NextClosure& operator()(An0&& an0)
+  {
+    std::get<index>(args_r) = std::move(an0);
+    return (*closure_m);
   }
 
   // Data
@@ -44,7 +46,6 @@ struct Closure<1, argsNum, Func, Args, R>
   static std::size_t constexpr index = (argsNum - 1);
 
   using An0 = typename std::tuple_element< index, Args>::type;
-  // using An1 = typename std::tuple_element< index + 1, Args >::type;
 
   // CTOR
   Closure(Func& func, Args& args)
@@ -54,11 +55,18 @@ struct Closure<1, argsNum, Func, Args, R>
     ;
   }
 
-  R operator()(An0 an0)
+  R operator()(An0& an0)
   {
     std::get<index>(args_r) = an0;
     return apply_from_tuple(func_r, args_r);
   }
+
+  R operator()(An0&& an0)
+  {
+    std::get<index>(args_r) = std::move(an0);
+    return apply_from_tuple(func_r, args_r);
+  }
+
 
   // Data
   Func& func_r;
@@ -76,39 +84,40 @@ struct Curry
   using Args = std::tuple< typename std::remove_reference<As>::type... >;
   using NextClosure = Closure<argsNum-1, argsNum, Func, Args, R>;
   using A0 = typename std::tuple_element< 0, Args >::type;
-  // using A1 = typename std::tuple_element< 1, Args >::type;
 
   // CTOR
-  Curry(Func& func)
+  Curry(Func func)
     : func_m(func)
   {
     closure_m.reset( new NextClosure(func_m, args_m) );
   }
 
   // Methods
-  NextClosure& operator()(A0 a0)
+  NextClosure& operator()(A0& a0)
   {
     std::get<0>(args_m) = a0;
     return (*closure_m);
-    // return [&](A1 a1)
-    // {
-      // return closure_m->(a1);
-    // };
   }
 
+  NextClosure& operator()(A0&& a0)
+  {
+    std::get<0>(args_m) = std::move(a0);
+    return (*closure_m);
+  }
+
+
   // Data
-  Func const& func_m;
+  Func & func_m;
   Args args_m;
   std::unique_ptr< NextClosure > closure_m;
 
 };
 
 // needs a minimum of 2 arguments
-template< typename R, typename A1, typename A2, typename... As >
-auto curry(R (&&f) (A1 a1, A2 a2, As... as))
+template< typename R, typename... As >
+auto curry(R (*f) (As... as))
 {
-  //  std::function<R(A1, A2, As...)>(f);
-  return Curry< R, A1, A2, As... >(std::function<R(A1, A2, As...)>(f));
+  return Curry<R, As...>(std::function<R(As&&...)>(f));
 }
 
 
@@ -164,16 +173,16 @@ int main()
   // currently only support pass by value...
   // pointer reveference of rvalue do not work!!!
 
-  auto f6 = curry(add6);
-  std::cout << f6(4)(3)(2)(val)(false)(msg) << std::endl;
-  auto f5 = curry(add5);
-  std::cout << f5(4)(3)(2)(val)(true) << std::endl;
+  // auto f6 = curry(add6);
+  // std::cout << f6(4)(3)(2)(val)(false)(msg) << std::endl;
+  // auto f5 = curry(add5);
+  // std::cout << f5(4)(3)(2)(val)(true) << std::endl;
   auto f4 = curry(add4);
   std::cout << f4(4)(3)(2)(val) << std::endl;
-  auto f3 = curry(add3);
-  std::cout << f3(4)(3)(2) << std::endl;
-  auto f2 = curry(add2);
-  std::cout << f2(4)(3) << std::endl;
+  // auto f3 = curry(add3);
+  // std::cout << f3(4)(3)(2) << std::endl;
+  // auto f2 = curry(add2);
+  // std::cout << f2(4)(3) << std::endl;
 
   // NOTE: this should not work because currying needs at least 2 arguments
   // auto f1 = curry(add1);
