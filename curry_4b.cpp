@@ -10,13 +10,11 @@ struct Closure
 {
   static std::size_t constexpr index = (argsNum - level);
   using NextClosure = Closure<level-1, argsNum, Func, ArgsPtr, R>;
-  using An0 = typename std::tuple_element< index, ArgsPtr>::type::element_type;
-  //using An0 = typename std::remove_pointer< An0ptr>::type;
+  using An0 = typename std::remove_pointer< typename std::tuple_element< index, ArgsPtr >::type >::type;
 
   // CTOR
   Closure(Func func, ArgsPtr& argsPtr)
     : func_r(func)
-      //, argsVal_r(argsVal)
     , argsPtr_r(argsPtr)
   {
     closure_m.reset( new NextClosure(func_r, argsPtr_r) );
@@ -24,23 +22,22 @@ struct Closure
 
   NextClosure& operator()(An0& an0)
   {
-    std::get<index>(argsPtr_r).reset(&an0);
+    std::get<index>(argsPtr_r) = &an0;
     return (*closure_m);
   }
 
   NextClosure& operator()(An0&& an0)
   {
-    //*(std::get<index>(argsPtr_r)) = an0; //new An0(std::move(an0)) ;
-    //return (*closure_m);
-    auto p = std::make_unique<An0>(an0);
-    (std::get<index>(argsPtr_r)).swap(p);
+    auto p = std::make_unique<An0>(std::move(an0));
+    rArgs.swap(p);
+    std::get<index>(argsPtr_r) = rArgs.get();
     return (*closure_m);
   }
 
   // Data
   Func func_r;
-  // ArgsVal& argsVal_r;
   ArgsPtr& argsPtr_r;
+  std::unique_ptr< An0 > rArgs;
   std::unique_ptr< NextClosure > closure_m;
 };
 
@@ -48,39 +45,31 @@ template<size_t argsNum, typename Func, typename ArgsPtr, typename R>
 struct Closure<1, argsNum, Func, ArgsPtr, R>
 {
   static std::size_t constexpr index = (argsNum - 1);
-  using An0 = typename std::tuple_element< index, ArgsPtr>::type::element_type;
-  //using An0 = typename std::remove_pointer< An0ptr>::type;
+  using An0 = typename std::remove_pointer< typename std::tuple_element< index, ArgsPtr >::type >::type;
 
   Closure(Func func, ArgsPtr& argsPtr)
   : func_r(func)
-  //, argsVal_r(argsVal)
   , argsPtr_r(argsPtr)
-  // , args_r(args)
-  {
-    ;
-  }
+  {}
 
   R operator()(An0& an0)
   {
-    std::get<index>(argsPtr_r).reset(&an0);
+    std::get<index>(argsPtr_r) = &an0;
     return apply_from_ptr_tuple(func_r, argsPtr_r);
   }
 
   R operator()(An0&& an0)
   {
-    //*(std::get<index>(argsPtr_r)) = an0; //std::move(an0);
-    // std::make_unique< std::add_pointer<An0> >( std::move(an0) );
-    //return apply_from_ptr_tuple(func_r, argsPtr_r);
-    auto p = std::make_unique<An0>(an0);
-    (std::get<index>(argsPtr_r)).swap(p);
+    auto p = std::make_unique<An0>(std::move(an0));
+    rArgs.swap(p);
+    std::get<index>(argsPtr_r) = rArgs.get();
     return apply_from_ptr_tuple(func_r, argsPtr_r);
   }
 
   // Data
   Func func_r;
-  //ArgsVal& argsVal_r;
   ArgsPtr& argsPtr_r;
-
+  std::unique_ptr< An0 > rArgs;
 };
 
 template < typename R, typename... As >
@@ -89,11 +78,10 @@ struct Curry
   static std::size_t constexpr argsNum = sizeof... (As);
 
   using Func = std::function<R(As...)>;
-  //using ArgsPtr = std::tuple< std::unique_ptr<As>... >;
-  using ArgsPtr = std::tuple< std::unique_ptr<typename std::remove_reference<As>::type>... >;
+  using ArgsPtr = std::tuple< typename std::add_pointer< typename std::remove_reference<As>::type>::type... >;
 
   using NextClosure = Closure<argsNum-1, argsNum, Func, ArgsPtr, R>;
-  using A0 = typename std::tuple_element< 0, ArgsPtr >::type::element_type;
+  using A0 = typename std::remove_pointer< typename std::tuple_element< 0, ArgsPtr >::type >::type;
 
   // CTOR
   Curry(Func func)
@@ -105,21 +93,22 @@ struct Curry
   // Methods
   NextClosure& operator()(const A0& a0)
   {
-    std::get<0>(argsPtr_m).reset(&a0);
+    std::get<0>(argsPtr_m) = &a0;
     return (*closure_m);
   }
 
   NextClosure& operator()(A0&& a0)
   {
-    auto p = std::make_unique<A0>(a0);
-    (std::get<0>(argsPtr_m)).swap(p);
+    auto p = std::make_unique<A0>(std::move(a0));
+    rArgs.swap(p);
+    std::get<0>(argsPtr_m) = rArgs.get();
     return (*closure_m);
   }
 
   // Data
   Func func_m;
-  // ArgsVal argsVal_m;
   ArgsPtr argsPtr_m;
+  std::unique_ptr< A0 > rArgs;
   std::unique_ptr< NextClosure > closure_m;
 
 };
@@ -165,7 +154,7 @@ int add5 (int a, float b, long c, double d, bool cond)
     }
 }
 
-int add6 (int a, float b, long c, double& d, bool cond, std::string& e)
+int add6 (int a, float b, long c, double& d, bool cond, const std::string& e)
 {
   if(!cond)
     {
@@ -179,14 +168,6 @@ int main()
 {
   double  val = 1;
   std::string msg("Hello Curry!\n");
-
-  // std::tuple<std::unique_ptr<int>, std::unique_ptr<int>> test;
-  // auto p1 = std::make_unique<int>(5);
-  // auto p2 = std::make_unique<int>(7);
-  // std::get<0>(test).swap(p1);
-  // std::get<1>(test).swap(p2);
-  // std::function<int(int,int)> f(add2);
-  // std::cout << apply_from_ptr_tuple(f, test) << std::endl;
 
   auto f6 = curry(add6);
   std::cout << f6(4)(3)(2)(val)(false)(msg) << std::endl;
