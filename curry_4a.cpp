@@ -12,7 +12,6 @@ struct Closure
 
   using NextClosure = Closure<level-1, argsNum, Func, Args, R>;
   using An0 = typename std::tuple_element< index, Args>::type;
-  // using An1 = typename std::tuple_element< index + 1, Args >::type;
 
   // CTOR
   Closure(Func& func, Args& args)
@@ -55,7 +54,7 @@ struct Closure<1, argsNum, Func, Args, R>
     ;
   }
 
-  R operator()(An0& an0)
+  R operator()(const An0& an0)
   {
     std::get<index>(args_r) = an0;
     return apply_from_tuple(func_r, args_r);
@@ -66,7 +65,6 @@ struct Closure<1, argsNum, Func, Args, R>
     std::get<index>(args_r) = std::move(an0);
     return apply_from_tuple(func_r, args_r);
   }
-
 
   // Data
   Func& func_r;
@@ -80,7 +78,6 @@ struct Curry
   static std::size_t constexpr argsNum = sizeof... (As);
 
   using Func = std::function<R(As...)>;
-  //using Args = std::tuple<As...>;
   using Args = std::tuple< typename std::remove_reference<As>::type... >;
   using NextClosure = Closure<argsNum-1, argsNum, Func, Args, R>;
   using A0 = typename std::tuple_element< 0, Args >::type;
@@ -93,7 +90,7 @@ struct Curry
   }
 
   // Methods
-  NextClosure& operator()(A0& a0)
+  NextClosure& operator()(const A0& a0)
   {
     std::get<0>(args_m) = a0;
     return (*closure_m);
@@ -105,7 +102,6 @@ struct Curry
     return (*closure_m);
   }
 
-
   // Data
   Func & func_m;
   Args args_m;
@@ -114,10 +110,10 @@ struct Curry
 };
 
 // needs a minimum of 2 arguments
-template< typename R, typename... As >
-auto curry(R (*f) (As... as))
+template< typename R, typename A1, typename A2, typename... As >
+auto curry(R (*f) (A1, A2, As... as))
 {
-  return Curry<R, As...>(std::function<R(As&&...)>(f));
+  return Curry<R, A1, A2, As...>(std::function<R(A1&&, A2&&, As&&...)>(f));
 }
 
 
@@ -137,7 +133,7 @@ int add3 (int a, int b, int c)
   return a+b+c;
 }
 
-int add4 (int a, float b, long c, double d)
+int add4 (int a, float b, long c, double& d)
 {
   return a+b+c+d;
 }
@@ -154,7 +150,7 @@ int add5 (int a, float b, long c, double d, bool cond)
     }
 }
 
-int add6 (int a, float b, long c, double d, bool cond, std::string e)
+int add6 (int a, float b, long c, double& d, bool cond, const std::string& e)
 {
   if(!cond)
     {
@@ -167,24 +163,20 @@ int add6 (int a, float b, long c, double d, bool cond, std::string e)
 int main()
 {
   double  val = 1;
-  const std::string msg("Hello Curry!\n");
+  std::string msg("Hello Curry!\n");
 
-  // TODO: need to implement other ways of argument parsing, 
-  // currently only support pass by value...
-  // pointer reveference of rvalue do not work!!!
-
-  // auto f6 = curry(add6);
-  // std::cout << f6(4)(3)(2)(val)(false)(msg) << std::endl;
-  // auto f5 = curry(add5);
-  // std::cout << f5(4)(3)(2)(val)(true) << std::endl;
+  auto f6 = curry(add6);
+  std::cout << f6(4)(3)(2)(val)(false)(msg) << std::endl;
+  auto f5 = curry(add5);
+  std::cout << f5(4)(3)(2)(val)(true) << std::endl;
   auto f4 = curry(add4);
   std::cout << f4(4)(3)(2)(val) << std::endl;
-  // auto f3 = curry(add3);
-  // std::cout << f3(4)(3)(2) << std::endl;
-  // auto f2 = curry(add2);
-  // std::cout << f2(4)(3) << std::endl;
+  auto f3 = curry(add3);
+  std::cout << f3(4)(3)(2) << std::endl;
+  auto f2 = curry(add2);
+  std::cout << f2(4)(3) << std::endl;
 
   // NOTE: this should not work because currying needs at least 2 arguments
-  // auto f1 = curry(add1);
-  // std::cout << f1(4) << std::endl;    
+  /* auto f1 = curry(add1);
+     std::cout << f1(4) << std::endl;  */
 }
