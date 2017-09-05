@@ -1,10 +1,14 @@
-#include <cstddef>
-#include <iostream>
 #include <memory>
 #include "apply_tuple.hpp"
 
+#ifndef CURRY_HPP
+#define CURRY_HPP
 
-// ===
+namespace FunctionalCpp
+{
+
+// Clousure class used to hold partial applications
+// *******************************************************************
 template<size_t level, size_t argsNum, typename Func, typename ArgsPtr, typename R>
 struct Closure
 {
@@ -41,6 +45,7 @@ struct Closure
   std::unique_ptr< NextClosure > closure_m;
 };
 
+// parttila specialization to the last argument
 template<size_t argsNum, typename Func, typename ArgsPtr, typename R>
 struct Closure<1, argsNum, Func, ArgsPtr, R>
 {
@@ -55,7 +60,7 @@ struct Closure<1, argsNum, Func, ArgsPtr, R>
   R operator()(An0& an0)
   {
     std::get<index>(argsPtr_r) = &an0;
-    return apply_from_ptr_tuple(func_r, argsPtr_r);
+    return Tuple::apply_ptr(func_r, argsPtr_r);
   }
 
   R operator()(An0&& an0)
@@ -63,7 +68,7 @@ struct Closure<1, argsNum, Func, ArgsPtr, R>
     auto p = std::make_unique<An0>(std::move(an0));
     rArgs.swap(p);
     std::get<index>(argsPtr_r) = rArgs.get();
-    return apply_from_ptr_tuple(func_r, argsPtr_r);
+    return Tuple::apply_ptr(func_r, argsPtr_r);
   }
 
   // Data
@@ -72,6 +77,8 @@ struct Closure<1, argsNum, Func, ArgsPtr, R>
   std::unique_ptr< An0 > rArgs;
 };
 
+
+// Curry type holds the recursive pratial applications to a N-ary function
 template < typename R, typename... As >
 struct Curry
 {
@@ -113,6 +120,7 @@ struct Curry
 
 };
 
+// given a functionreturn a curry structure
 // needs a minimum of 2 arguments
 template< typename R, typename A1, typename A2, typename... As >
 auto curry(R (*f) (A1, A2, As... as))
@@ -120,67 +128,6 @@ auto curry(R (*f) (A1, A2, As... as))
   return Curry<R, A1, A2, As...>(std::function<R(A1&&, A2&&, As&&...)>(f));
 }
 
+}; // end nasmespace FuncrtionalCpp
 
-// test function
-int add1 (double a)
-{
-  return a+1;
-}
-
-int add2 (int a, int b)
-{
-  return a+b;
-}
-
-int add3 (int a, int b, int c)
-{
-  return a+b+c;
-}
-
-int add4 (int a, float b, long c, double& d)
-{
-  return a+b+c+d;
-}
-
-int add5 (int a, float b, long c, double d, bool cond)
-{
-  if(cond)
-    {
-      return a+b+c+d;
-    }
-  else
-    {
-      return 0;
-    }
-}
-
-int add6 (int a, float b, long c, double& d, bool cond, const std::string& e)
-{
-  if(!cond)
-    {
-      std::cerr << e << std::endl;
-    }
-  return a+b+c+d;
-}
-
-// testing
-int main()
-{
-  double  val = 1;
-  std::string msg("Hello Curry!\n");
-
-  auto f6 = curry(add6);
-  std::cout << f6(4)(3)(2)(val)(false)(msg) << std::endl;
-  auto f5 = curry(add5);
-  std::cout << f5(4)(3)(2)(val)(true) << std::endl;
-  auto f4 = curry(add4);
-  std::cout << f4(4)(3)(2)(val) << std::endl;
-  auto f3 = curry(add3);
-  std::cout << f3(4)(3)(2) << std::endl;
-  auto f2 = curry(add2);
-  std::cout << f2(4)(3) << std::endl;
-
-  // NOTE: this should not work because currying needs at least 2 arguments
-  /* auto f1 = curry(add1);
-     std::cout << f1(4) << std::endl;  */
-}
+#endif
