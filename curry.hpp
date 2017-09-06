@@ -82,13 +82,13 @@ namespace FunctionalCpp
 
   // Curry type holds the recursive pratial applications to a N-ary function
   // *******************************************************************
-  template < typename R, typename... As >
+  template < typename R, typename... Args >
   struct Curry
   {
-    static std::size_t constexpr argsNum = sizeof... (As);
+    static std::size_t constexpr argsNum = sizeof... (Args);
 
-    using Func = std::function<R(As...)>;
-    using ArgsPtr = std::tuple< typename std::add_pointer< typename std::remove_reference<As>::type>::type... >;
+    using Func = std::function<R(Args...)>;
+    using ArgsPtr = std::tuple< typename std::add_pointer< typename std::remove_reference<Args>::type>::type... >;
 
     using ReturnT = Closure<argsNum-1, argsNum, Func, ArgsPtr, R>;
     using ArgN = typename std::remove_pointer< typename std::tuple_element< 0, ArgsPtr >::type >::type;
@@ -125,10 +125,10 @@ namespace FunctionalCpp
 
   // given a function will return a curry structure
   // needs a minimum of 2 arguments
-  template< typename R, typename A1, typename A2, typename... As >
-  auto make_curry(R (*f) (A1, A2, As... as))
+  template< typename R, typename A1, typename A2, typename... Args >
+  auto make_curry(R (*f) (A1, A2, Args... as))
   {
-    return Curry<R, A1, A2, As...>(std::function<R(A1&&, A2&&, As&&...)>(f));
+    return Curry<R, A1, A2, Args...>(std::function<R(A1&&, A2&&, Args&&...)>(f));
   }
 
 } // end nasmespace FuncrtionalCpp
