@@ -52,15 +52,15 @@ int main()
   double  val = 1;
   std::string msg("Hello Curry!\n");
 
-  auto f6 = curry(add6);
+  auto f6 = make_curry(add6);
   std::cout << f6(4)(3)(2)(val)(false)(msg) << std::endl;
-  auto f5 = curry(add5);
+  auto f5 = make_curry(add5);
   std::cout << f5(4)(3)(2)(val)(true) << std::endl;
-  auto f4 = curry(add4);
+  auto f4 = make_curry(add4);
   std::cout << f4(4)(3)(2)(val) << std::endl;
-  auto f3 = curry(add3);
+  auto f3 = make_curry(add3);
   std::cout << f3(4)(3)(2) << std::endl;
-  auto f2 = curry(add2);
+  auto f2 = make_curry(add2);
   std::cout << f2(4)(3) << std::endl;
 
   // NOTE: this should not work because currying needs at least 2 arguments

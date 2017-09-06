@@ -30,6 +30,6 @@ namespace FunctionalCpp
     static F&& map(F& functor_, std::function<T::type(T::type, Args...)>);
   };
 
-}; // end namespace FunctionalCpp
+} // end namespace FunctionalCpp
 
 #endif // FUNCTOR_HPP

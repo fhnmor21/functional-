@@ -1,8 +1,11 @@
-g++flags = -std=c++14 -g
-#-O2 -Wall -pedantic -pthread
+g++flags_dbg = -std=c++14 -g  -Wall -pedantic
+g++flags_rls = -std=c++14 -O2 -Wall -pedantic -pthread
 
-test:
-	g++ ${g++flags} test.cpp -o test.exe
+test_dbg:
+	g++ ${g++flags_dbg} test.cpp -o test.exe
+
+test_rls:
+	g++ ${g++flags_rls} test.cpp -o test.exe
 
 clean:
 	rm *.exe
