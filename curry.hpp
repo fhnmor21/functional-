@@ -59,13 +59,13 @@ namespace FunctionalCpp
     , argsPtr_r(argsPtr)
     {}
 
-    ReturnT&& operator()(ArgN& an)
+    ReturnT operator()(ArgN& an)
     {
       std::get<index>(argsPtr_r) = &an;
       return Tuple::apply_ptr(func_r, argsPtr_r);
     }
 
-    ReturnT&& operator()(ArgN&& an)
+    ReturnT operator()(ArgN&& an)
     {
       auto p = std::make_unique<ArgN>(std::move(an));
       rArgs.swap(p);
