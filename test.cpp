@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <iostream>
 #include "curry.hpp"
+#include "functor.hpp"
 
 using namespace FunctionalCpp;
 
@@ -54,14 +55,26 @@ int main()
 
   auto f6 = make_curry(add6);
   std::cout << f6(4)(3)(2)(val)(false)(msg) << std::endl;
+
   auto f5 = make_curry(add5);
   std::cout << f5(4)(3)(2)(val)(true) << std::endl;
+
   auto f4 = make_curry(add4);
   std::cout << f4(4)(3)(2)(val) << std::endl;
+
   auto f3 = make_curry(add3);
   std::cout << f3(4)(3)(2) << std::endl;
+
   auto f2 = make_curry(add2);
   std::cout << f2(4)(3) << std::endl;
+
+  auto plus3 = f2(3);
+  std::vector<int> input{0,1,2,3,4,5,6,7,8,9};
+  // auto output = fmap(plus3, input);
+  // for(auto& o: output)
+  // {
+  //   std::cout << 
+  // }
 
   // NOTE: this should not work because currying needs at least 2 arguments
   /* auto f1 = curry(add1);

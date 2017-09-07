@@ -1,8 +1,8 @@
-#include <memory>
-#include "invoke.hpp"
-
 #ifndef CURRY_HPP
 #define CURRY_HPP
+
+#include <memory>
+#include "invoke.hpp"
 
 namespace FunctionalCpp
 {

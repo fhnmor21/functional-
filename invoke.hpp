@@ -1,10 +1,10 @@
+#ifndef APPLY_TUPLE
+#define APPLY_TUPLE
+
 #include <tuple>
 #include <type_traits>
 #include <utility>
 #include <functional>
-
-#ifndef APPLY_TUPLE
-#define APPLY_TUPLE
 
 namespace FunctionalCpp
 {
