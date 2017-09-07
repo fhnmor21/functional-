@@ -64,8 +64,7 @@ namespace FunctionalCpp
 
 
 
-
-
+  
 } // end namespace FunctionalCpp
 
 #endif // FUNCTOR_HPP
