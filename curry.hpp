@@ -1,5 +1,5 @@
 #include <memory>
-#include "apply_tuple.hpp"
+#include "invoke.hpp"
 
 #ifndef CURRY_HPP
 #define CURRY_HPP
@@ -7,76 +7,76 @@
 namespace FunctionalCpp
 {
 
-  // Clousure class used to hold partial applications
+  // Partial Function class used to hold partial applications
   // *******************************************************************
   template<size_t level, size_t argsNum, typename Func, typename ArgsPtr, typename R>
-  struct Closure
+  struct PartialFn
   {
     static std::size_t constexpr index = (argsNum - level);
-    using ReturnT = Closure<level-1, argsNum, Func, ArgsPtr, R>;
-    using ArgN = typename std::remove_pointer< typename std::tuple_element< index, ArgsPtr >::type >::type;
+    using ReturnT = PartialFn<level-1, argsNum, Func, ArgsPtr, R>;
+    using ArgT = typename std::remove_pointer< typename std::tuple_element< index, ArgsPtr >::type >::type;
 
     // CTOR
-    Closure(Func func, ArgsPtr& argsPtr)
+    PartialFn(Func func, ArgsPtr& argsPtr)
       : func_r(func)
       , argsPtr_r(argsPtr)
     {
-      closure_m.reset( new ReturnT(func_r, argsPtr_r) );
+      partialFn_m.reset( new ReturnT(func_r, argsPtr_r) );
     }
 
-    ReturnT& operator()(ArgN& an)
+    ReturnT& operator()(ArgT& an)
     {
       std::get<index>(argsPtr_r) = &an;
-      return (*closure_m);
+      return (*partialFn_m);
     }
 
-    ReturnT& operator()(ArgN&& an)
+    ReturnT& operator()(ArgT&& an)
     {
-      auto p = std::make_unique<ArgN>(std::move(an));
+      auto p = std::make_unique<ArgT>(std::move(an));
       rArgs.swap(p);
       std::get<index>(argsPtr_r) = rArgs.get();
-      return (*closure_m);
+      return (*partialFn_m);
     }
 
     // Data
     Func func_r;
     ArgsPtr& argsPtr_r;
-    std::unique_ptr< ArgN > rArgs;
-    std::unique_ptr< ReturnT > closure_m;
+    std::unique_ptr< ArgT > rArgs;
+    std::unique_ptr< ReturnT > partialFn_m;
   };
 
-  // parttila specialization for the last argument
+  // Partial Function specialization for the last argument
   // *******************************************************************
   template<size_t argsNum, typename Func, typename ArgsPtr, typename R>
-  struct Closure<1, argsNum, Func, ArgsPtr, R>
+  struct PartialFn<1, argsNum, Func, ArgsPtr, R>
   {
     static std::size_t constexpr index = (argsNum - 1);
     using ReturnT = R;
-    using ArgN = typename std::remove_pointer< typename std::tuple_element< index, ArgsPtr >::type >::type;
+    using ArgT = typename std::remove_pointer< typename std::tuple_element< index, ArgsPtr >::type >::type;
 
-    Closure(Func func, ArgsPtr& argsPtr)
+    PartialFn(Func func, ArgsPtr& argsPtr)
     : func_r(func)
     , argsPtr_r(argsPtr)
     {}
 
-    ReturnT operator()(ArgN& an)
+    ReturnT operator()(ArgT& an)
     {
       std::get<index>(argsPtr_r) = &an;
-      return Tuple::apply_ptr(func_r, argsPtr_r);
+      return Tuple::Ptrs::invoke(func_r, argsPtr_r);
     }
 
-    ReturnT operator()(ArgN&& an)
+    ReturnT operator()(ArgT&& an)
     {
-      auto p = std::make_unique<ArgN>(std::move(an));
+      auto p = std::make_unique<ArgT>(std::move(an));
       rArgs.swap(p);
       std::get<index>(argsPtr_r) = rArgs.get();
-      return Tuple::apply_ptr(func_r, argsPtr_r);
+      return Tuple::Ptrs::invoke(func_r, argsPtr_r);
     }
 
     // Data
     Func func_r;
     ArgsPtr& argsPtr_r;
-    std::unique_ptr< ArgN > rArgs;
+    std::unique_ptr< ArgT > rArgs;
   };
 
 
@@ -90,21 +90,21 @@ namespace FunctionalCpp
     using Func = std::function<R(Args...)>;
     using ArgsPtr = std::tuple< typename std::add_pointer< typename std::remove_reference<Args>::type>::type... >;
 
-    using ReturnT = Closure<argsNum-1, argsNum, Func, ArgsPtr, R>;
+    using ReturnT = PartialFn<argsNum-1, argsNum, Func, ArgsPtr, R>;
     using ArgN = typename std::remove_pointer< typename std::tuple_element< 0, ArgsPtr >::type >::type;
 
     // CTOR
     Curry(Func func)
     : func_m(func)
     {
-      closure_m.reset( new ReturnT(func_m, argsPtr_m) );
+      partialFn_m.reset( new ReturnT(func_m, argsPtr_m) );
     }
 
     // Methods
     ReturnT& operator()(const ArgN& a0)
     {
       std::get<0>(argsPtr_m) = &a0;
-      return (*closure_m);
+      return (*partialFn_m);
     }
 
     ReturnT& operator()(ArgN&& a0)
@@ -112,14 +112,14 @@ namespace FunctionalCpp
       auto p = std::make_unique<ArgN>(std::move(a0));
       rArgs.swap(p);
       std::get<0>(argsPtr_m) = rArgs.get();
-      return (*closure_m);
+      return (*partialFn_m);
     }
 
     // Data
     Func func_m;
     ArgsPtr argsPtr_m;
     std::unique_ptr< ArgN > rArgs;
-    std::unique_ptr< ReturnT > closure_m;
+    std::unique_ptr< ReturnT > partialFn_m;
 
   };
 
