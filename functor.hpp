@@ -15,7 +15,7 @@ namespace FunctionalCpp
     using function = std::function<R(A1)>;
     using result = R;
     using arg = A1; // this should be the same as value
-    using value = inner_type<F>; // this should be the same as arg    
+    using value = inner_type<F>; // this should be the same as arg
     // using is_mappable = std::is_same<arg, value>::value;
 
     using ifunctor = F;

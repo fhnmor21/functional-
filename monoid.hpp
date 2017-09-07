@@ -12,12 +12,3 @@ namespace FunctionalCpp
     static M&& identity ();
   };
 
-  template <typename M>
-  M&& concat ()
-  {
-    // TODO
-  }
-
-} // end namespace FunctionalCpp
-
-#endif // MONOID_HPP

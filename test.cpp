@@ -68,8 +68,8 @@ int main()
   auto f2 = make_curry(add2);
   std::cout << f2(4)(3) << std::endl;
 
-  auto plus3 = f2(3);
-  std::vector<int> input{0,1,2,3,4,5,6,7,8,9};
+  // auto plus3 = f2(3);
+  // std::vector<int> input{0,1,2,3,4,5,6,7,8,9};
   // auto output = fmap(plus3, input);
   // for(auto& o: output)
   // {

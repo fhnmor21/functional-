@@ -9,48 +9,57 @@ namespace FunctionalCpp
 
   // Partial Function class used to hold partial applications
   // *******************************************************************
-  template<size_t level, size_t argsNum, typename Func, typename ArgsPtr, typename R>
+  template<size_t level, size_t argsNum, typename Func, typename ArgPtrs, typename ArgVals typename R>
   struct PartialFn
   {
     static std::size_t constexpr index = (argsNum - level);
+    // using ArgsPtr = std::tuple< typename std::add_pointer< typename std::remove_reference<Args>::type>::type... >;
+    // using ArgVals = std::tuple< typename std::unique_ptr< typename std::remove_reference<Args>::type>::element_type... >;
     using ReturnT = PartialFn<level-1, argsNum, Func, ArgsPtr, R>;
     using ArgT = typename std::remove_pointer< typename std::tuple_element< index, ArgsPtr >::type >::type;
 
     // CTOR
-    PartialFn(Func func, ArgsPtr& argsPtr)
-      : func_r(func)
-      , argsPtr_r(argsPtr)
-    {
-      partialFn_m.reset( new ReturnT(func_r, argsPtr_r) );
-    }
+    PartialFn(Func&& func)
+      : partialFn_p(new ReturnT(func))
+      , argPtrs_p(partialFn_p->argPtrs_p)
+      , argVals_p(partialFn_p->argVals_p)
+    {}
+      //, func_r(func)
+      //, argsPtr_r(argsPtr)
+    // {
+      //partialFn_m.reset( new ReturnT(func_r, argsPtr_r) );
+    // }
 
-    ReturnT& operator()(ArgT& an)
+    ReturnT&& operator()(ArgT& an)
     {
-      std::get<index>(argsPtr_r) = &an;
+      std::get<index>(*argPtrs_r) = &an;
       return (*partialFn_m);
     }
 
-    ReturnT& operator()(ArgT&& an)
+    ReturnT&& operator()(ArgT&& an)
     {
       auto p = std::make_unique<ArgT>(std::move(an));
-      rArgs.swap(p);
-      std::get<index>(argsPtr_r) = rArgs.get();
+      std::get<index>(*argVals_r).swap(p);
+      std::get<index>(*argPtrs_r) = std::get<index>(*argVals_r).get();
       return (*partialFn_m);
     }
 
     // Data
-    Func func_r;
-    ArgsPtr& argsPtr_r;
-    std::unique_ptr< ArgT > rArgs;
-    std::unique_ptr< ReturnT > partialFn_m;
+    //Func func_r;
+    ArgPtrs* argPtrs_p;
+    ArgVals* argVals_p;
+    ReturnT* partialFn_p;
+    //std::unique_ptr< ArgT > rArgs;
   };
 
   // Partial Function specialization for the last argument
   // *******************************************************************
-  template<size_t argsNum, typename Func, typename ArgsPtr, typename R>
+  template<size_t argsNum, typename Func, typename ArgPtrs, typename ArgVals, typename R>
   struct PartialFn<1, argsNum, Func, ArgsPtr, R>
   {
     static std::size_t constexpr index = (argsNum - 1);
+    // using ArgsPtr = std::tuple< typename std::add_pointer< typename std::remove_reference<Args>::type>::type... >;
+    // using ArgsVals = std::tuple< typename std::unique_ptr< typename std::remove_reference<Args>::type>::element_type... >;
     using ReturnT = R;
     using ArgT = typename std::remove_pointer< typename std::tuple_element< index, ArgsPtr >::type >::type;
 
@@ -88,12 +97,18 @@ namespace FunctionalCpp
     static std::size_t constexpr argsNum = sizeof... (Args);
 
     using Func = std::function<R(Args...)>;
-    using ArgsPtr = std::tuple< typename std::add_pointer< typename std::remove_reference<Args>::type>::type... >;
-
+    using ArgPtrs = std::tuple< typename std::add_pointer< typename std::remove_reference<Args>::type>::type... >;
+    using ArgVals = std::tuple< typename std::unique_ptr< typename std::remove_reference<Args>::type>::element_type... >;
     using ReturnT = PartialFn<argsNum-1, argsNum, Func, ArgsPtr, R>;
-    using ArgN = typename std::remove_pointer< typename std::tuple_element< 0, ArgsPtr >::type >::type;
+    //using ArgN = typename std::remove_pointer< typename std::tuple_element< 0, ArgsPtr >::type >::type;
+
+    static ReturnT&& CurryFactory(Func&& func)
+    {
+        return ReturnT<argsNum, argsNum, Func, ArgPtrs, ArgVals, R>(func);
+    }
 
     // CTOR
+    /*
     Curry(Func func)
     : func_m(func)
     {
@@ -114,12 +129,13 @@ namespace FunctionalCpp
       std::get<0>(argsPtr_m) = rArgs.get();
       return (*partialFn_m);
     }
+    */
 
     // Data
-    Func func_m;
-    ArgsPtr argsPtr_m;
-    std::unique_ptr< ArgN > rArgs;
-    std::unique_ptr< ReturnT > partialFn_m;
+    // Func func_m;
+    // ArgsPtr* argsPtr_p;
+    // ReturnT* partialFn_p;
+    // std::unique_ptr< ArgN > rArgs;
 
   };
 
