@@ -50,23 +50,28 @@ int add6 (int a, float b, long c, double& d, bool cond, const std::string& e)
 // testing
 int main()
 {
-  double  val = 1;
-  std::string msg("Hello Curry!\n");
+  auto f = [](int a){return a;};
+  auto f_t = Curry<int, int>::Factory(std::function<int(int)>(f));
+  std::cout << f_t(4) << std::endl;
 
-  auto f6 = make_curry(add6);
-  std::cout << f6(4)(3)(2)(val)(false)(msg) << std::endl;
+  // double  val = 1;
+  // std::string msg("Hello Curry!\n");
 
-  auto f5 = make_curry(add5);
-  std::cout << f5(4)(3)(2)(val)(true) << std::endl;
+  // auto f6 = curry(add6);
+  // std::cout << f6(4)(3)(2)(val)(false)(msg) << std::endl;
 
-  auto f4 = make_curry(add4);
-  std::cout << f4(4)(3)(2)(val) << std::endl;
+  // auto f5 = curry(add5);
+  // std::cout << f5(4)(3)(2)(val)(true) << std::endl;
 
-  auto f3 = make_curry(add3);
-  std::cout << f3(4)(3)(2) << std::endl;
+  // auto f4 = curry(add4);
+  // std::cout << f4(4)(3)(2)(val) << std::endl;
 
-  auto f2 = make_curry(add2);
-  std::cout << f2(4)(3) << std::endl;
+  // auto f3 = curry(add3);
+  // std::cout << f3(4)(3)(2) << std::endl;
+
+  // int val_3 = 3;
+  // auto f2 = curry(add2);
+  // std::cout << f2(val_3)(4) << std::endl;
 
   // auto plus3 = f2(3);
   // std::vector<int> input{0,1,2,3,4,5,6,7,8,9};
