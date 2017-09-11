@@ -2,8 +2,9 @@
 #define CURRY_HPP
 
 #include <memory>
-#include "invoke.hpp"
-
+#include <utility>
+#include <functional>
+#include "type_utils.hpp"
 
 namespace FunctionalCpp
 {
@@ -11,20 +12,24 @@ namespace FunctionalCpp
   // BASED ON: www.github.com/andre-bergner/funky
 
   // forward declarion of currying function
-  template < typename Function , typename... Args >
-  auto curry( Function&& f , Args&&... args );
+  template < typename Function , typename... BoundArgs >
+  auto curry( Function&& f , BoundArgs&&... boundArgs );
 
   // partial application object function
-  template < typename Function , typename... OlgArgs >
+  template < typename Function , typename... OldArgs >
   struct PartialFn
   {
   private:
+    // Types and Statics
+    using ArgVals = std::tuple< typename std::remove_reference<OldArgs>::type... >;
+    static std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<ArgVals>::type>::value;
+    // using NewArgN = typename get_type< tSize-1, OldArgs... >::type;
 
     // Data
     Function const & func_;
-    std::tuple< typename std::remove_reference<OlgArgs>::type... >   args_;
+    ArgVals args_;
 
-
+    // ************************************************************************
     // SFINAE trick to deal with incomplete set of arguments
     struct call_failed {};
     struct call_succeed : call_failed {};
@@ -51,27 +56,32 @@ namespace FunctionalCpp
     }
 
   public:
-
     // Ctor
-    PartialFn( Function const &f , OlgArgs&&... as )
-    : func_(f) , args_( std::forward<OlgArgs>(as)...) {}
+    PartialFn( Function const &f , OldArgs&&... as )
+    : func_(f) , args_( std::forward<OldArgs>(as)...) {}
 
     // function object operator
     template < typename NewArg >
     auto operator()( NewArg&& newArg ) 
     {
-      return  call( std::make_index_sequence<sizeof...(OlgArgs)>()
+      return  call( std::make_index_sequence<sizeof...(OldArgs)>()
                   , std::forward<NewArg>(newArg) );
     }
 
   };
 
-  // currying function
-  template< typename Function , typename... Args >
-  auto curry( Function&& f , Args&&... boundArgs )
+  //currying function
+  template< typename Function , typename... BoundArgs >
+  auto curry( Function&& func , BoundArgs&&... boundArgs )
   {
-    return PartialFn<Function, Args...>( f , std::forward<Args>(boundArgs)... );
+    return PartialFn<Function, BoundArgs...>( func , std::forward<BoundArgs>(boundArgs)... );
   }
+
+  // template< typename R, typename A1, typename... Args, typename... BoundArgs >
+  // auto curry( std::function<R(A1, Args...)>&& func , BoundArgs&&... boundArgs )
+  // {
+  //   return PartialFn<std::function<R(A1, Args...)>, BoundArgs...>( func , std::forward<BoundArgs>(boundArgs)... );
+  // }
 
 } // end nasmespace FunctionalCpp
 

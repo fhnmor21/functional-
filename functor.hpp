@@ -23,9 +23,9 @@ namespace FunctionalCpp
   };
 
   // simple functor map
-  template <typename F, typename R, typename A1>
-  typename FunctorTypes<F, R, A1>::ofunctor&&
-  fmap(typename FunctorTypes<F, R, A1>::function a2b_, typename FunctorTypes<F, R, A1>::ifunctor& fa_ );
+  // template <typename F, typename R, typename A1>
+  // typename FunctorTypes<F, R, A1>::ofunctor&&
+  // fmap(typename FunctorTypes<F, R, A1>::function a2b_, typename FunctorTypes<F, R, A1>::ifunctor& fa_ );
 
 
   // template <typename F, typename R, typename A1, typename A2, typename... As>
@@ -53,7 +53,7 @@ namespace FunctionalCpp
   // instance for std::vector
   template <typename T, typename R, typename A1>
   typename FunctorTypes<std::vector<T>, R, A1>::ofunctor&&
-  fmap<std::vector<T>, R, A1>(typename FunctorTypes<std::vector<T>, R, A1> fn_a2b, typename FunctorTypes<std::vector<T>, R, A1>::ifunctor& fa_ )
+  fmap(typename FunctorTypes<std::vector<T>, R, A1>::function fn_a2b, typename FunctorTypes<std::vector<T>, R, A1>::ifunctor& fa_ )
   {
     typename FunctorTypes<std::vector<T>, R, A1>::ofunctor fb_;
 

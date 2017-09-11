@@ -7,7 +7,7 @@
 
 namespace FunctionalCpp
 {
-
+    ///
     // inner type of any parametric class
     template<typename T>
 	struct inner_type { using type = T; };
@@ -29,6 +29,7 @@ namespace FunctionalCpp
         using type = T;
 	};
 
+    ///
     // rebind a context or container to another parameter
     template<
         class Cp,
@@ -57,15 +58,8 @@ namespace FunctionalCpp
         using type = Cp<U, Ts...>;
 	};
 
+    ///
     // try to find the value type from containers
-    // template <typename C>
-    // struct value_type
-    // {
-    //     using type = typename std::remove_reference< decltype(
-    //         *std::begin(std::declval< typename std::add_lvalue_reference< C >::type >() ) 
-    //         ) >::type;
-    // };
-
     template <typename C>
     struct value_type
     {
@@ -84,6 +78,22 @@ namespace FunctionalCpp
       typedef T type;
     };
    
+
+    ///
+    // nth element from an template arguments pack
+    template<std::size_t N, typename T, typename... Ts>
+    struct get_type
+    {
+        using type = typename get_type<N - 1, Ts...>::type;
+    };
+
+    template<typename T, typename... Ts>
+    struct get_type<0, T, Ts...>
+    {
+        using type = T;
+    };
+
+
 
 } // end namespace FunctionalCpp
 
