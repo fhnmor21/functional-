@@ -11,6 +11,35 @@ namespace FunctionalCpp
 
   // BASED ON: www.github.com/andre-bergner/funky
 
+  // function wrapper
+  template <typename R, typename... Args>
+  struct FuncWrap
+  {
+    // types
+    //using Function = std::function<R(Args...)>;
+    using Function = R(*)(Args...);
+    template <size_t N>
+    struct getArg
+    {
+      using Type = get_type<N, Args...>;
+    };
+
+    /*
+    FuncWrap (Function&& func)
+      : fn(func){}
+    */
+
+    FuncWrap (R (*func)(Args...))
+      : fn(Function(func)) {}
+
+    R operator()(Args&&... as)
+    {
+      return fn( std::forward<Args>(as)... );
+    }
+
+    const Function& fn;
+  };
+
   // forward declarion of currying function
   template < typename Function , typename... BoundArgs >
   auto curry( Function&& f , BoundArgs&&... boundArgs );
@@ -82,6 +111,13 @@ namespace FunctionalCpp
   // {
   //   return PartialFn<std::function<R(A1, Args...)>, BoundArgs...>( func , std::forward<BoundArgs>(boundArgs)... );
   // }
+
+  template <typename R, typename... Args>
+  auto functionWrapper(R(*f)(Args...))
+  {
+    return FuncWrap<R, Args...>(f);
+  }
+
 
 } // end nasmespace FunctionalCpp
 

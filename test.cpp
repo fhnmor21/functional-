@@ -47,14 +47,17 @@ int add6 (int a, float b, long c, double& d, bool cond, const std::string& e)
   return a+b+c+d;
 }
 
-// testing
+// testing 
 int main()
 {
+
+  auto fw = functionWrapper(add2);
+  std::cerr << "f_w_ " << fw(5,6) << std::endl;
 
   auto f_t2 = curry(add2);
   auto f_t2_ = f_t2(4);
   std::cerr << "f_t2 " << f_t2_(5) << std::endl;
-
+  /*
   auto f_t3 = curry(add3);
   auto f_t3_ = f_t3(4);
   std::cerr << "f_t3 " << f_t3_(5)(6) << std::endl;
@@ -81,7 +84,7 @@ int main()
   int val_3 = 3;
   auto f2 = curry(add2);
   std::cout << "f2 " << f2(val_3)(4) << std::endl;
-
+*/
   // auto plus3 = f2(3);
   // std::vector<int> input{0,1,2,3,4,5,6,7,8,9};
   // auto output = fmap<>(plus3, input);
