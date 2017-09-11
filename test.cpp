@@ -1,7 +1,7 @@
 #include <cstddef>
 #include <iostream>
 #include "curry.hpp"
-//#include "functor.hpp"
+#include "functor.hpp"
 
 using namespace FunctionalCpp;
 
@@ -82,9 +82,9 @@ int main()
   auto f2 = curry(add2);
   std::cout << "f2 " << f2(val_3)(4) << std::endl;
 
-  // auto plus3 = f2(3);
-  // std::vector<int> input{0,1,2,3,4,5,6,7,8,9};
-  // auto output = fmap(plus3, input);
+  auto plus3 = f2(3);
+  std::vector<int> input{0,1,2,3,4,5,6,7,8,9};
+  auto output = fmap(plus3, input);
   // for(auto& o: output)
   // {
   //   std::cout << "Functor" ;

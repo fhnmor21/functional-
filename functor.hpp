@@ -49,14 +49,13 @@ namespace FunctionalCpp
 
   // ****************************************************************
   // local implementations / instatiations for STL containers
-  
+
   // instance for std::vector
   template <typename T, typename R, typename A1>
   typename FunctorTypes<std::vector<T>, R, A1>::ofunctor&&
-  fmap(R (*a2b) (A1), typename FunctorTypes<std::vector<T>, R, A1>::ifunctor& fa_ )
+  fmap<std::vector<T>, R, A1>(typename FunctorTypes<std::vector<T>, R, A1> fn_a2b, typename FunctorTypes<std::vector<T>, R, A1>::ifunctor& fa_ )
   {
     typename FunctorTypes<std::vector<T>, R, A1>::ofunctor fb_;
-    typename FunctorTypes<std::vector<T>, R, A1>::function fn_a2b(a2b);
 
     std::transform(fa_.begin(), fa_.end(), fb_.begin(), fn_a2b);
     return fb_;
