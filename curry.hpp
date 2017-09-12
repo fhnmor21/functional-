@@ -9,36 +9,126 @@
 namespace FunctionalCpp
 {
 
-  // BASED ON: www.github.com/andre-bergner/funky
+  // LOOSELY BASED ON: www.github.com/andre-bergner/funky
 
-  // function wrapper
-  template <typename R, typename... Args>
-  struct FuncWrap
+  // function type utils
+  template <typename Ret, typename... Args>
+  struct FuncTypes
   {
-    // types
-    //using Function = std::function<R(Args...)>;
-    using Function = R(*)(Args...);
-    template <size_t N>
-    struct getArg
+    // general types
+    using Function = Ret(*)(Args...);
+
+    // **************************************************
+    // function wrapper object
+    struct Wrapper
     {
-      using Type = get_type<N, Args...>;
-    };
+      // types
+      static size_t constexpr argsNum = sizeof...(Args);
+      // template <size_t N>
+      // struct getArg
+      // {
+      //   using Type = get_type<N, Args...>;
+      // };
 
-    /*
-    FuncWrap (Function&& func)
-      : fn(func){}
-    */
+      // Ctor
+      Wrapper (const Function func)
+      : fn(func) {}
 
-    FuncWrap (R (*func)(Args...))
-      : fn(Function(func)) {}
+      // Operators
+      Ret operator()(Args&&... as)
+      {
+        return fn( std::forward<Args>(as)... );
+      }
 
-    R operator()(Args&&... as)
-    {
-      return fn( std::forward<Args>(as)... );
-    }
+      // Data
+      const Function& fn;
+    }; // end Wrapper
 
-    const Function& fn;
-  };
+    // // **************************************************
+    // // partial application function object - forward declaration
+    // template < typename... BoundArgs >
+    // struct Partial
+    // {
+    //   // Types and Statics
+    //   using ArgVals = std::tuple< typename std::remove_reference<BoundArgs>::type... >;
+    //   static size_t constexpr tplSize = std::tuple_size<typename std::remove_reference<ArgVals>::type>::value;
+
+    //   // // Ctor
+    //   // Partial(Function& f, BoundArgs&&... as)
+    //   //   : func_m(f) 
+    //   //   , args_m( std::forward<BoundArgs>(as)...)
+    //   // {}
+
+    //   void init(Function& f, BoundArgs&&... as)
+    //   {
+    //     func_m = Wrapper(f);
+    //     args_m = ArgVals(std::forward<BoundArgs>(as)...);
+    //   }
+
+    // //private:
+    //     // Data
+    //     Wrapper func_m;
+    //     ArgVals args_m;
+    // }; // end Partial
+
+  }; // end FuncTypes
+
+
+  template <typename Ret, typename... Args>
+  using FnWrap = typename FuncTypes<Ret, Args...>::Wrapper;
+
+  template <typename Ret, typename... Args>
+  auto funcWrapper(Ret(*f)(Args...))
+  {
+    // using FnWrap = typename FuncTypes<Ret, Args...>::Wrapper;
+    return FnWrap<Ret, Args...>(f);
+  }
+
+  // **************************************************
+  // partial application function object - forward declaration
+  template <
+    typename Ret, 
+    typename... Args >
+  struct Partial
+  {
+    // Types and Statics
+    using Function = typename FuncTypes<Ret, Args...>::Function;
+    using Wrapper = typename FuncTypes<Ret, Args...>::Wrapper;
+    using ArgVals = std::tuple< typename std::remove_reference<Args>::type... >;
+    static size_t constexpr tplSize = std::tuple_size<typename std::remove_reference<ArgVals>::type>::value;
+
+    // Ctor
+    Partial(Function& f, Args&&... as)
+      : func_m(f) 
+      , args_m( std::forward<Args>(as)...)
+    {}
+
+  //private:
+      // Data
+      Wrapper func_m;
+      ArgVals args_m;
+  }; // end Partial
+
+
+
+  // // template <typename Ret, typename... Args>
+  // // auto partial( Ret(*f)(Args...) )
+  // template <typename Ret, typename... Args, typename... BoundArgs>
+  // auto partial( Ret(*f)(Args...), BoundArgs&&... boundArgs )
+  // {
+  //   // using Func = typename FuncTypes<Ret, Args...>::Function;
+  //   // FuncTypes<Ret, Args...> funcType;
+  //   // typename FuncTypes<Ret, Args...>::Partial fnPartial(f, boundArgs...);
+  //   typename FuncTypes<Ret, Args...>::Partial fnPartial;
+    
+  //   return std::move(fnPartial);
+  //   // funcType::Partial<BoundArgs...> fnPartial();
+  //   // return fnPartial.init( std::forward<Func>(f) );
+  //   //, std::forward<BoundArgs>(boundArgs)... );
+  //   // return FuncTypes<Ret, Args...>::Factory ( f );
+  // }
+
+
 
   // forward declarion of currying function
   template < typename Function , typename... BoundArgs >
@@ -111,13 +201,6 @@ namespace FunctionalCpp
   // {
   //   return PartialFn<std::function<R(A1, Args...)>, BoundArgs...>( func , std::forward<BoundArgs>(boundArgs)... );
   // }
-
-  template <typename R, typename... Args>
-  auto functionWrapper(R(*f)(Args...))
-  {
-    return FuncWrap<R, Args...>(f);
-  }
-
 
 } // end nasmespace FunctionalCpp
 

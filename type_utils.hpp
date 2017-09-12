@@ -23,7 +23,7 @@ namespace FunctionalCpp
 	template<
 			template<typename,typename...> class Tt,
 			typename T,
-			typename...Ts>
+			typename... Ts>
     struct inner_type<Tt<T,Ts...>> 
     {
         using type = T;

@@ -51,12 +51,16 @@ int add6 (int a, float b, long c, double& d, bool cond, const std::string& e)
 int main()
 {
 
-  auto fw = functionWrapper(add2);
-  std::cerr << "f_w_ " << fw(5,6) << std::endl;
+  auto fw = funcWrapper(add2);
+  std::cerr << "fw " << fw(5,6) << std::endl;
 
-  auto f_t2 = curry(add2);
-  auto f_t2_ = f_t2(4);
-  std::cerr << "f_t2 " << f_t2_(5) << std::endl;
+  // auto fp = partial(add2, 3);
+  // std::cerr << "fp " << (fp.func_m)(5,6) << std::endl;
+
+  // auto f_t2 = curry(add2);
+  // auto f_t2_ = f_t2(4);
+  // std::cerr << "f_t2 " << f_t2_(5) << std::endl;
+
   /*
   auto f_t3 = curry(add3);
   auto f_t3_ = f_t3(4);
