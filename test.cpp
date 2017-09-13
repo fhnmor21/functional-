@@ -68,22 +68,27 @@ int main()
   
   // TESTING: Partial application of arguments
   // ===
-  auto fp1 = partial(add2);
+  auto fp1 = curry(add2);
   std::cerr << "fp1 wrapper call (5,6): " << (fp1.func_m)(5,6) << std::endl;
   std::cerr << "fp1 wrapper invoke {4,8}: " << Tuple::Vals::invoke((fp1.func_m.fn), args2) << std::endl;
   
-  auto fp2 = partial(add2, 2);
+  auto fp2 = curry(add2, 2);
   std::cerr << "fp2 wrapper call (5,6): " << (fp2.func_m)(5,6)  << std::endl;
   std::cerr << "fp2 wrapper invoke {4,8}: " << Tuple::Vals::invoke((fp2.func_m.fn), args2) << std::endl;
   std::cerr << "fp2 wrapper partial_call (3): " << fp2(3) << std::endl;
 
   auto args3 = std::tuple<int, int, int>(2,4,8);
   
-  auto fp3 = partial(add3, 2, 1);
+  auto fp3 = curry(add3, 2, 1);
   std::cerr << "fp3 wrapper call (5,6,7): " << (fp3.func_m)(5,6,7)  << std::endl;
   std::cerr << "fp3 wrapper invoke {2,4,8}: " << Tuple::Vals::invoke((fp3.func_m.fn), args3) << std::endl;
   std::cerr << "fp3 wrapper partial_call (3): " << fp3(3) << std::endl;
 
+  auto fp4 = curry(add3, 1);
+  std::cerr << "fp4 wrapper call (5,6,7): " << (fp4.func_m)(5,6,7)  << std::endl;
+  std::cerr << "fp4 wrapper invoke {2,4,8}: " << Tuple::Vals::invoke((fp4.func_m.fn), args3) << std::endl;
+  auto fp4_ = fp4(2);
+  //std::cerr << "fp4 wrapper partial_call (2)(3): " << fp4_(3) << std::endl;
 
   /*
   auto f_t3_ = f_t3(4);

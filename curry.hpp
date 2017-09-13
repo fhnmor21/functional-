@@ -52,60 +52,79 @@ namespace FunctionalCpp
   template <
     typename Tpl,
     typename Ret,
-    typename... Args >
+    typename... FnArgs >
   struct FnPartial
   {
-    /*
-    template < typename... ValArgs >
-    auto dispatch_( ValArgs&&... args ) const -> Ret
-    {
-      return  func_m( std::forward<ValArgs>(args)... );
-    }
-
-    // calling to the function forwarding arguments
-    template < std::size_t... Ns , typename ArgsTpl >
-    auto call_( std::index_sequence<Ns...> , ArgsTpl&& tpl )
-    {
-      return dispatch_( std::get<Ns>(tpl)... );
-    }
-    */
-
     // Types and Statics
-    using Function = typename FnWrapper<Ret, Args...>::Function;
-    using Wrapper = FnWrapper<Ret, Args...>;
+    using Function = typename FnWrapper<Ret, FnArgs...>::Function;
+    using Wrapper = FnWrapper<Ret, FnArgs...>;
     static std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tpl>::type>::value;
-
-    // Ctor
-    FnPartial(Function& f, Tpl& boundArgs)
-      : func_m(fnWrapper(f))
-      , boundArgs_m(boundArgs)
-    {}
-
-    // Operators
-    template <typename NewArg>
-    auto operator()(NewArg&& a)
-    {
-      auto argVals = std::tuple_cat(boundArgs_m, std::tuple<NewArg>(std::forward<NewArg>(a)));
-      return Tuple::Vals::invoke(func_m.fn, argVals);
-    }
 
   //private:
     // Data
     Wrapper func_m;
     Tpl boundArgs_m;
 
+  //public:
+    // Ctor
+    FnPartial(Function& f, Tpl& boundArgs)
+      : func_m(fnWrapper(f))
+      , boundArgs_m(boundArgs)
+    {}
+
+
+    // ************************************************************************
+    // SFINAE trick to deal with incomplete set of arguments
+    struct call_failed {};
+    struct call_succeed : call_failed {};
+
+    // dispacther function for correct numbers of arguments
+    template < typename ArgsTpl >
+    Ret dispatch( call_succeed , ArgsTpl&& argsTpl ) const
+    {
+      return Tuple::Vals::invoke(func_m.fn, argsTpl);
+    }
+    // dispatch function for incomplete set of arguments
+    template < typename ArgsTpl >
+    auto dispatch( call_failed , ArgsTpl&& argsTpl ) const
+          -> decltype( partial( std::forward<ArgsTpl>(argsTpl), func_m.fn ) )
+    {
+      return partial( func_m.fn, std::forward<ArgsTpl>(argsTpl) );
+    }
+
+    // Operators
+    template <typename NewArg>
+    auto operator()(NewArg&& a)
+    {
+      auto newArgsTpl = std::tuple_cat(boundArgs_m, std::tuple<NewArg>(std::forward<NewArg>(a)));
+      //return Tuple::Vals::invoke(func_m.fn, newArgsTpl);
+      return dispatch(call_succeed{}, newArgsTpl);
+    }
+
+    // recursive static factories
+    //=========================================================================  
+    template <typename... BoundArgs>
+    static auto partial( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs )
+    {
+      Tpl argsTpl(boundArgs...);
+      return FnPartial<Tpl, Ret, FnArgs...>(f, argsTpl);
+    }
+
+    template < typename BoundArgsTpl >
+    static auto partial( BoundArgsTpl&& argsTpl, Ret(*f)(FnArgs...) )
+    {
+      return FnPartial<BoundArgsTpl, Ret, FnArgs...>(f, argsTpl);
+    }
+
   }; // end Partial
 
+
   template <typename Ret, typename... FnArgs, typename... BoundArgs>
-  auto partial( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs )
+  auto curry( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs )
   {
     using BoundArgsTpl = std::tuple<BoundArgs...>;
-    BoundArgsTpl bound(boundArgs...);
-    return FnPartial<BoundArgsTpl, Ret, FnArgs...>(f, bound);
+    return FnPartial<BoundArgsTpl, Ret, FnArgs...>::partial(f, boundArgs...);
   }
-
-
-
 
 
 
@@ -174,12 +193,12 @@ namespace FunctionalCpp
 
   };
 
-  //currying function
-  template< typename Function , typename... BoundArgs >
-  auto curry( Function&& func , BoundArgs&&... boundArgs )
-  {
-    return PartialFn<Function, BoundArgs...>( func , std::forward<BoundArgs>(boundArgs)... );
-  }
+  // //currying function
+  // template< typename Function , typename... BoundArgs >
+  // auto curry( Function&& func , BoundArgs&&... boundArgs )
+  // {
+  //   return PartialFn<Function, BoundArgs...>( func , std::forward<BoundArgs>(boundArgs)... );
+  // }
 
 } // end nasmespace FunctionalCpp
 
