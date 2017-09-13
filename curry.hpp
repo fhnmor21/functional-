@@ -28,7 +28,7 @@ namespace FunctionalCpp
     };
 
     // Ctor
-    FnWrapper (const Function func)
+    FnWrapper (Function func)
     : fn(func) {}
 
     // Operators
@@ -36,14 +36,8 @@ namespace FunctionalCpp
     {
       return fn( std::forward<Args>(as)... );
     }
-
-    Ret operator()(Args&... as)
-    {
-      return fn( as... );
-     }
-
     // Data
-    const Function& fn;
+    Function fn;
   }; // end Wrapper
 
 
