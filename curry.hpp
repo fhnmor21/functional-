@@ -9,17 +9,14 @@
 
 namespace FunctionalCpp
 {
-
-  // LOOSELY BASED ON: www.github.com/andre-bergner/funky
-
-  // function type utils
-  template <typename Ret, typename... Args>
   // **************************************************
-  // function wrapper object
+  // simple function wrapper object
+  // with extras: Functio type_id & numOfArgs & Nth Arg Type
+  template <typename Ret, typename... Args>
   struct FnWrapper
   {
     // types
-    static size_t constexpr argsNum = sizeof...(Args);
+    static size_t constexpr numOfArgs = sizeof...(Args);
     using Function = Ret(*)(Args...);
     template <size_t N>
     struct getArg
@@ -36,32 +33,29 @@ namespace FunctionalCpp
     {
       return fn( std::forward<Args>(as)... );
     }
+
     // Data
     Function fn;
   }; // end Wrapper
 
-
-  // template <typename Ret, typename... Args>
-  // using FnWrapper = typename FuncTypes<Ret, Args...>::Wrapper;
-
+  // factory function for FN Wrapper
   template <typename Ret, typename... Args>
   auto fnWrapper(Ret(*f)(Args...))
   {
     return FnWrapper<Ret, Args...>(f);
   }
 
+
   // **************************************************
   // partial application function object - forward declaration
+  // LOOSELY BASED ON: www.github.com/andre-bergner/funky
   template <
     typename Tpl,
     typename Ret,
     typename... Args >
   struct FnPartial
   {
-    // Types and Statics
-    using Function = typename FnWrapper<Ret, Args...>::Function;
-    using Wrapper = FnWrapper<Ret, Args...>;
-
+    /*
     template < typename... ValArgs >
     auto dispatch_( ValArgs&&... args ) const -> Ret
     {
@@ -74,23 +68,25 @@ namespace FunctionalCpp
     {
       return dispatch_( std::get<Ns>(tpl)... );
     }
+    */
+
+    // Types and Statics
+    using Function = typename FnWrapper<Ret, Args...>::Function;
+    using Wrapper = FnWrapper<Ret, Args...>;
+    static std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tpl>::type>::value;
 
     // Ctor
     FnPartial(Function& f, Tpl& boundArgs)
-      : func_m(f)
+      : func_m(fnWrapper(f))
       , boundArgs_m(boundArgs)
     {}
 
+    // Operators
     template <typename NewArg>
     auto operator()(NewArg&& a)
     {
-      std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tpl>::type>::value;
       auto argVals = std::tuple_cat(boundArgs_m, std::tuple<NewArg>(std::forward<NewArg>(a)));
-
-      //return Tuple::Vals::invoke((func_m.fn), argVals);
-      //std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tpl>::type>::value;
-
-      return  call_( std::make_index_sequence<tSize+1>(), argVals);
+      return Tuple::Vals::invoke(func_m.fn, argVals);
     }
 
   //private:
@@ -100,12 +96,12 @@ namespace FunctionalCpp
 
   }; // end Partial
 
-
-  template <typename Ret, typename... Args, typename... BoundArgs>
-  auto partial( Ret(*f)(Args...), BoundArgs&&... boundArgs )
+  template <typename Ret, typename... FnArgs, typename... BoundArgs>
+  auto partial( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs )
   {
-    std::tuple<BoundArgs...> bound(boundArgs...);
-    return FnPartial<std::tuple<BoundArgs...>, Ret, Args...>(f, bound);
+    using BoundArgsTpl = std::tuple<BoundArgs...>;
+    BoundArgsTpl bound(boundArgs...);
+    return FnPartial<BoundArgsTpl, Ret, FnArgs...>(f, bound);
   }
 
 
@@ -117,13 +113,7 @@ namespace FunctionalCpp
 
 
 
-
-
-
-
-
-
-
+  // FROM: www.github.com/andre-bergner/funky
 
   // forward declarion of currying function
   template < typename Function , typename... BoundArgs >
@@ -190,12 +180,6 @@ namespace FunctionalCpp
   {
     return PartialFn<Function, BoundArgs...>( func , std::forward<BoundArgs>(boundArgs)... );
   }
-
-  // template< typename R, typename A1, typename... Args, typename... BoundArgs >
-  // auto curry( std::function<R(A1, Args...)>&& func , BoundArgs&&... boundArgs )
-  // {
-  //   return PartialFn<std::function<R(A1, Args...)>, BoundArgs...>( func , std::forward<BoundArgs>(boundArgs)... );
-  // }
 
 } // end nasmespace FunctionalCpp
 
