@@ -51,11 +51,22 @@ int add6 (int a, float b, long c, double& d, bool cond, const std::string& e)
 int main()
 {
 
-  auto fw = funcWrapper(add2);
-  std::cerr << "fw " << fw(5,6) << std::endl;
+  auto args = std::tuple<int, int>(4,8);
+  auto fw = fnWrapper(add2);
+  std::cerr << "fw call (5,6): " << fw(5,6) << std::endl;
+  //std::cerr << "add2 invoke {4,8}: " << Tuple::Vals::invoke(add2, args) << std::endl;
+  std::cerr << "fw invoke {4,8}: " << Tuple::Vals::invoke(fw.fn, args) << std::endl;
 
-  // auto fp = partial(add2, 3);
-  // std::cerr << "fp " << (fp.func_m)(5,6) << std::endl;
+
+
+  //auto fp1 = partial(add2, 3);
+  //auto r = fp1.func_m.fn(2,2);
+  //std::cerr << r << " : fp1 " << (fp1.func_m)(4,3) << std::endl;
+  //std::cerr << "fp1_ " << fp1(3) << std::endl;
+
+  //auto fp2 = partial(add2);
+  //std::cerr << "fp2 " << (fp2.func_m)(4,5) << std::endl;
+
 
   // auto f_t2 = curry(add2);
   // auto f_t2_ = f_t2(4);

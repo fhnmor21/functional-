@@ -5,6 +5,7 @@
 #include <utility>
 #include <functional>
 #include "type_utils.hpp"
+#include "invoke.hpp"
 
 namespace FunctionalCpp
 {
@@ -13,120 +14,120 @@ namespace FunctionalCpp
 
   // function type utils
   template <typename Ret, typename... Args>
-  struct FuncTypes
+  // **************************************************
+  // function wrapper object
+  struct FnWrapper
   {
-    // general types
+    // types
+    static size_t constexpr argsNum = sizeof...(Args);
     using Function = Ret(*)(Args...);
-
-    // **************************************************
-    // function wrapper object
-    struct Wrapper
+    template <size_t N>
+    struct getArg
     {
-      // types
-      static size_t constexpr argsNum = sizeof...(Args);
-      // template <size_t N>
-      // struct getArg
-      // {
-      //   using Type = get_type<N, Args...>;
-      // };
+      using Type = get_type<N, Args...>;
+    };
 
-      // Ctor
-      Wrapper (const Function func)
-      : fn(func) {}
+    // Ctor
+    FnWrapper (const Function func)
+    : fn(func) {}
 
-      // Operators
-      Ret operator()(Args&&... as)
-      {
-        return fn( std::forward<Args>(as)... );
-      }
+    // Operators
+    Ret operator()(Args&&... as)
+    {
+      return fn( std::forward<Args>(as)... );
+    }
 
-      // Data
-      const Function& fn;
-    }; // end Wrapper
+    Ret operator()(Args&... as)
+    {
+      return fn( as... );
+     }
 
-    // // **************************************************
-    // // partial application function object - forward declaration
-    // template < typename... BoundArgs >
-    // struct Partial
-    // {
-    //   // Types and Statics
-    //   using ArgVals = std::tuple< typename std::remove_reference<BoundArgs>::type... >;
-    //   static size_t constexpr tplSize = std::tuple_size<typename std::remove_reference<ArgVals>::type>::value;
+    // Data
+    const Function& fn;
+  }; // end Wrapper
 
-    //   // // Ctor
-    //   // Partial(Function& f, BoundArgs&&... as)
-    //   //   : func_m(f) 
-    //   //   , args_m( std::forward<BoundArgs>(as)...)
-    //   // {}
 
-    //   void init(Function& f, BoundArgs&&... as)
-    //   {
-    //     func_m = Wrapper(f);
-    //     args_m = ArgVals(std::forward<BoundArgs>(as)...);
-    //   }
-
-    // //private:
-    //     // Data
-    //     Wrapper func_m;
-    //     ArgVals args_m;
-    // }; // end Partial
-
-  }; // end FuncTypes
-
+  // template <typename Ret, typename... Args>
+  // using FnWrapper = typename FuncTypes<Ret, Args...>::Wrapper;
 
   template <typename Ret, typename... Args>
-  using FnWrap = typename FuncTypes<Ret, Args...>::Wrapper;
-
-  template <typename Ret, typename... Args>
-  auto funcWrapper(Ret(*f)(Args...))
+  auto fnWrapper(Ret(*f)(Args...))
   {
-    // using FnWrap = typename FuncTypes<Ret, Args...>::Wrapper;
-    return FnWrap<Ret, Args...>(f);
+    return FnWrapper<Ret, Args...>(f);
   }
 
   // **************************************************
   // partial application function object - forward declaration
   template <
-    typename Ret, 
+    typename Tpl,
+    typename Ret,
     typename... Args >
-  struct Partial
+  struct FnPartial
   {
     // Types and Statics
-    using Function = typename FuncTypes<Ret, Args...>::Function;
-    using Wrapper = typename FuncTypes<Ret, Args...>::Wrapper;
-    using ArgVals = std::tuple< typename std::remove_reference<Args>::type... >;
-    static size_t constexpr tplSize = std::tuple_size<typename std::remove_reference<ArgVals>::type>::value;
+    using Function = typename FnWrapper<Ret, Args...>::Function;
+    using Wrapper = FnWrapper<Ret, Args...>;
+
+    template < typename... ValArgs >
+    auto dispatch_( ValArgs&&... args ) const -> Ret
+    {
+      return  func_m( std::forward<ValArgs>(args)... );
+    }
+
+    // calling to the function forwarding arguments
+    template < std::size_t... Ns , typename ArgsTpl >
+    auto call_( std::index_sequence<Ns...> , ArgsTpl&& tpl )
+    {
+      return dispatch_( std::get<Ns>(tpl)... );
+    }
 
     // Ctor
-    Partial(Function& f, Args&&... as)
-      : func_m(f) 
-      , args_m( std::forward<Args>(as)...)
+    FnPartial(Function& f, Tpl& boundArgs)
+      : func_m(f)
+      , boundArgs_m(boundArgs)
     {}
 
+    template <typename NewArg>
+    auto operator()(NewArg&& a)
+    {
+      std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tpl>::type>::value;
+      auto argVals = std::tuple_cat(boundArgs_m, std::tuple<NewArg>(std::forward<NewArg>(a)));
+
+      //return Tuple::Vals::invoke((func_m.fn), argVals);
+      //std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tpl>::type>::value;
+
+      return  call_( std::make_index_sequence<tSize+1>(), argVals);
+    }
+
   //private:
-      // Data
-      Wrapper func_m;
-      ArgVals args_m;
+    // Data
+    Wrapper func_m;
+    Tpl boundArgs_m;
+
   }; // end Partial
 
 
+  template <typename Ret, typename... Args, typename... BoundArgs>
+  auto partial( Ret(*f)(Args...), BoundArgs&&... boundArgs )
+  {
+    std::tuple<BoundArgs...> bound(boundArgs...);
+    return FnPartial<std::tuple<BoundArgs...>, Ret, Args...>(f, bound);
+  }
 
-  // // template <typename Ret, typename... Args>
-  // // auto partial( Ret(*f)(Args...) )
-  // template <typename Ret, typename... Args, typename... BoundArgs>
-  // auto partial( Ret(*f)(Args...), BoundArgs&&... boundArgs )
-  // {
-  //   // using Func = typename FuncTypes<Ret, Args...>::Function;
-  //   // FuncTypes<Ret, Args...> funcType;
-  //   // typename FuncTypes<Ret, Args...>::Partial fnPartial(f, boundArgs...);
-  //   typename FuncTypes<Ret, Args...>::Partial fnPartial;
-    
-  //   return std::move(fnPartial);
-  //   // funcType::Partial<BoundArgs...> fnPartial();
-  //   // return fnPartial.init( std::forward<Func>(f) );
-  //   //, std::forward<BoundArgs>(boundArgs)... );
-  //   // return FuncTypes<Ret, Args...>::Factory ( f );
-  // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -171,7 +172,7 @@ namespace FunctionalCpp
     template < std::size_t... Ns , typename... Other_args >
     auto call( std::index_sequence<Ns...> , Other_args&&... other_args )
     {
-      return dispatch( call_succeed{} , std::get<Ns>(args_)... , std::forward<Other_args>(other_args)... );
+      return dispatch( call_succeed{} ,  std::get<Ns>(args_)... , std::forward<Other_args>(other_args)... );
     }
 
   public:
