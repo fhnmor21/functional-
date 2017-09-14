@@ -47,13 +47,15 @@ int add6 (int a, float b, long c, double& d, bool cond, const std::string& e)
   return a+b+c+d;
 }
 
+
+
 // testing 
 int main()
 {
 
   // TESTING: function wrapper with Call and Invoke
   // ===
-  auto args2 = std::tuple<int, int>(4,8);
+  auto args2 = std::tuple<int, int>(4, 8);
 
   std::function<int(int,int)> std_add2 = add2;
   auto fw = fnWrapper(add2);
@@ -77,7 +79,7 @@ int main()
   std::cerr << "fp2 wrapper invoke {4,8}: " << Tuple::Vals::invoke((fp2.func_m.fn), args2) << std::endl;
   std::cerr << "fp2 wrapper partial_call (3): " << fp2(3) << std::endl;
 
-  auto args3 = std::tuple<int, int, int>(2,4,8);
+  auto args3 = std::tuple<int, int, int>(2, 4, 8);
 
   auto fp3 = curry(add3, 2, 1);
   std::cerr << "fp3 wrapper call (5,6,7): " << (fp3.func_m)(5,6,7)  << std::endl;
@@ -90,23 +92,20 @@ int main()
   auto fp4_ = fp4(2);
   std::cerr << "fp4 wrapper partial_call (2)(3): " << fp4_(3) << std::endl;
 
+  auto args4 = std::tuple<int, float, long, double>(12, 2.0, 4, 8.0);
+
+  double  val = 2.0;
+  auto fp5 = curry(add4);
+  std::cerr << "fp5 wrapper call (5,6.0,7,val=2.0): " << (fp5.func_m)(5,6.0f,7l,val)  << std::endl;
+  std::cerr << "fp5 wrapper invoke {12,2.0,4,8.0}: " << Tuple::Vals::invoke((fp5.func_m.fn), args4) << std::endl;
+  auto fp5_ = fp5(1)(2.0f);
+  //std::cerr << "fp5 wrapper partial_call (0)(0)|(1)(val=1): " << fp5_(1)(val) << std::endl;
+
   /*
-  auto f_t3_ = f_t3(4);
-  std::cerr << "f_t3 " << f_t3_(5) << std::endl;
-
-  auto f_t3 = curry(add3);
-  auto f_t3_ = f_t3(4);
-  std::cerr << "f_t3 " << f_t3_(5)(6) << std::endl;
-
-  double  val = 10;
-  auto f_t4 = curry(add4);
-  auto f_t4_ = f_t4(4);
-  std::cerr << "f_t4 " << f_t4_(5)(6)(val) << std::endl;
-
-  std::string msg("Hello Curry!\n");
-
-  auto f6 = curry(add6);
-  std::cout << "f6 " << f6(4)(3)(2)(val)(false)(msg) << std::endl;
+  std::string msg("Hello Curry!");
+  auto fp6 = curry(add6);
+  auto fp6_ = fp6(4)(3);
+  std::cout << "f6  wrapper partial_call (4)(3)|(2)(val=2)(F)(msg): " << fp6_(2)(val)(false)(msg) << std::endl;
 
   auto f5 = curry(add5);
   std::cout << "f5 " << f5(4)(3)(2)(val)(true) << std::endl;
@@ -120,7 +119,7 @@ int main()
   int val_3 = 3;
   auto f2 = curry(add2);
   std::cout << "f2 " << f2(val_3)(4) << std::endl;
-*/
+  */
   // auto plus3 = f2(3);
   // std::vector<int> input{0,1,2,3,4,5,6,7,8,9};
   // auto output = fmap<>(plus3, input);

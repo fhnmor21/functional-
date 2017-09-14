@@ -42,10 +42,10 @@ namespace FunctionalCpp
     return FnWrapper<Ret, Args...>(f);
   }
 
-  // ************************************************************************
   // SFINAE trick to deal with incomplete set of arguments
   struct call_failed  {};
   struct call_succeed {};
+
 
   // **************************************************
   // partial application function object - forward declaration
