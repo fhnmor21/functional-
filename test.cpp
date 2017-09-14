@@ -26,25 +26,14 @@ int add4 (int a, float b, long c, double& d)
   return a+b+c+d;
 }
 
-int add5 (int a, float b, long c, double d, bool cond)
+long add5 (int a, float b, long c, double d, unsigned int e)
 {
-  if(cond)
-    {
-      return a+b+c+d;
-    }
-  else
-    {
-      return 0;
-    }
+  return a+b+c+d+e;
 }
 
-int add6 (int a, float b, long c, double& d, bool cond, const std::string& e)
+double add6 (int a, float b, long c, double& d, unsigned int& e, const unsigned short& f)
 {
-  if(!cond)
-    {
-      std::cerr << e << std::endl;
-    }
-  return a+b+c+d;
+  return a+b+c+d+e+f;
 }
 
 
@@ -56,7 +45,8 @@ int main()
   // TESTING: function wrapper with Call and Invoke
   // ===
   auto args2 = std::tuple<int, int>(4, 8);
-
+  double  val = 12.0;
+  /*
   std::function<int(int,int)> std_add2 = add2;
   auto fw = fnWrapper(add2);
   auto std_fw = std::function<int(int,int)>(fw.fn);
@@ -94,18 +84,38 @@ int main()
 
   auto args4 = std::tuple<int, float, long, double>(12, 2.0, 4, 8.0);
 
-  double  val = 2.0;
   auto fp5 = curry(add4);
-  std::cerr << "fp5 wrapper call (5,6.0,7,val=2.0): " << (fp5.func_m)(5,6.0f,7l,val)  << std::endl;
+  std::cerr << "fp5 wrapper call (5,6.0,7,val=12.0): " << (fp5.func_m)(5,6.0f,7l,val)  << std::endl;
   std::cerr << "fp5 wrapper invoke {12,2.0,4,8.0}: " << Tuple::Vals::invoke((fp5.func_m.fn), args4) << std::endl;
-  auto fp5_ = fp5(1)(2.0f);
-  //std::cerr << "fp5 wrapper partial_call (0)(0)|(1)(val=1): " << fp5_(1)(val) << std::endl;
+  auto fp5_ = fp5(5);
+  auto fp5__ = fp5_(2.0f);
+  auto fp5___ = fp5__(7);
+  std::cerr << "fp5 wrapper partial_call (5)|(2.0)|(7)|(val=12): " << fp5___(val) << std::endl;
+  */
+  unsigned int val_ = 5;
+  auto args5 = std::tuple<int, float, long, double, unsigned int>(12, 2.0, 4, 8.0, 9);
 
+  auto fp6 = curry(add5, 5);
+  //std::cerr << "fp6 wrapper call (5,6.0,7,val=12.0,val_=5): " << (fp6.func_m)(5,6.0f,7l,val,val_) << std::endl;
+  std::cerr << "fp6 wrapper invoke {12, 2.0, 4, 8.0, 9}: " << Tuple::Vals::invoke((fp6.func_m.fn), args5) << std::endl;
+
+  //auto fp6_ = fp6(5);
+  //auto fp6__ = fpi6_(2.0f);
+  auto fp6__ = fp6(2.0f);
+  auto fp6___ = fp6__(7);
+  auto fp6____ = fp6___(12.0);
+  std::cout << "fp6  wrapper partial_call (5)(2.0)|(7)|(val=12.0)|(val_=5): " << fp6____(5) << std::endl;
+  std::cerr << "add5 invoke {12, 2.0, 4, 8.0, 9}: " << Tuple::Vals::invoke(add5, args5) << std::endl;
+  auto newArgs = args5;
+  std::cerr << "add5 invoke {12, 2.0, 4, 8.0, 9}_new : " << Tuple::Vals::invoke(add5, newArgs) << std::endl;
+
+
+  //auto fp6____ = fp6___(val);
+  //std::cout << "fp6  wrapper partial_call (5)(2.0)|(7)|(val=12.0)|(val_=5): " << fp6____(val_) << std::endl;
   /*
-  std::string msg("Hello Curry!");
-  auto fp6 = curry(add6);
-  auto fp6_ = fp6(4)(3);
-  std::cout << "f6  wrapper partial_call (4)(3)|(2)(val=2)(F)(msg): " << fp6_(2)(val)(false)(msg) << std::endl;
+  auto args6 = std::tuple<int, float, long, double, usigned int, short>(12, 2.0, 4, 8.0, 9);
+  auto fp7 = curry(add6);
+
 
   auto f5 = curry(add5);
   std::cout << "f5 " << f5(4)(3)(2)(val)(true) << std::endl;

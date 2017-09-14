@@ -66,7 +66,7 @@ namespace FunctionalCpp
   //private:
     // Data
     Wrapper func_m;
-    Tpl boundArgs_m;
+    const Tpl boundArgs_m;
 
   //public:
     // Ctor
@@ -92,10 +92,21 @@ namespace FunctionalCpp
     template <typename NewArg>
     auto operator()(NewArg&& a)
     {
-      auto newArgsTpl = std::tuple_cat(boundArgs_m, std::tuple<NewArg>(std::forward<NewArg>(a)));
+      //auto oldArgs = boundArgs_m;
+      auto newArgsTpl = std::tuple_cat(std::move(boundArgs_m), std::tuple<typename std::remove_reference<NewArg>::type>(std::move(a)));
       dispatcher condition{};
       return dispatch(condition, newArgsTpl);
     }
+
+    template <typename NewArg>
+    auto operator()(NewArg& a)
+    {
+      //auto oldArgs = boundArgs_m;
+      auto newArgsTpl = std::tuple_cat(std::move(boundArgs_m), std::tuple<typename std::remove_reference<NewArg>::type>(std::forward<NewArg>(a)));
+      dispatcher condition{};
+      return dispatch(condition, newArgsTpl);
+    }
+
 
     // recursive static factories
     //=========================================================================
@@ -117,7 +128,7 @@ namespace FunctionalCpp
   template <typename Ret, typename... FnArgs, typename... BoundArgs>
   auto curry( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs )
   {
-    using BoundArgsTpl = std::tuple<BoundArgs...>;
+    using BoundArgsTpl = std::tuple<typename std::remove_reference<BoundArgs>::type...>;
     return FnPartial<BoundArgsTpl, Ret, FnArgs...>::partial(f, boundArgs...);
   }
 
