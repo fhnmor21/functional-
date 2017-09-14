@@ -42,10 +42,10 @@ namespace FunctionalCpp
     return FnWrapper<Ret, Args...>(f);
   }
 
+
   // SFINAE trick to deal with incomplete set of arguments
   struct call_failed  {};
   struct call_succeed {};
-
 
   // **************************************************
   // partial application function object - forward declaration
@@ -74,7 +74,7 @@ namespace FunctionalCpp
       : func_m(fnWrapper(f))
       , boundArgs_m(boundArgs)
     {}
-
+    /*
     // dispacther function for correct numbers of arguments
     template < typename ArgsTpl >
     Ret dispatch( call_succeed , ArgsTpl&& argsTpl ) const
@@ -88,23 +88,54 @@ namespace FunctionalCpp
       return FnPartial<Tpl, Ret, FnArgs...>::partial( std::forward<ArgsTpl>(argsTpl), func_m.fn  );
     }
 
-   // Operators
+    // Operators
     template <typename NewArg>
     auto operator()(NewArg&& a)
     {
-      //auto oldArgs = boundArgs_m;
-      auto newArgsTpl = std::tuple_cat(std::move(boundArgs_m), std::tuple<typename std::remove_reference<NewArg>::type>(std::move(a)));
-      dispatcher condition{};
-      return dispatch(condition, newArgsTpl);
+    //auto oldArgs = boundArgs_m;
+    auto newArgsTpl = std::tuple_cat(std::move(boundArgs_m), std::tuple<typename std::remove_reference<NewArg>::type>(std::move(a)));
+    dispatcher condition{};
+    return dispatch(condition, newArgsTpl);
     }
 
     template <typename NewArg>
     auto operator()(NewArg& a)
     {
-      //auto oldArgs = boundArgs_m;
-      auto newArgsTpl = std::tuple_cat(std::move(boundArgs_m), std::tuple<typename std::remove_reference<NewArg>::type>(std::forward<NewArg>(a)));
+    //auto oldArgs = boundArgs_m;
+    auto newArgsTpl = std::tuple_cat(std::move(boundArgs_m), std::tuple<typename std::remove_reference<NewArg>::type>(std::forward<NewArg>(a)));
+    dispatcher condition{};
+    return dispatch(condition, newArgsTpl);
+    }
+
+    */
+
+    // dispacther function for correct numbers of arguments
+    template < typename... CompArgs >
+    Ret dispatch( call_succeed , CompArgs&&... compArgs ) const
+    {
+      return  func_m.fn( std::forward<CompArgs>(compArgs)... );
+    }
+
+    // dispatch function for incomplete set of arguments
+    template < typename... CompArgs >
+    auto dispatch( call_failed , CompArgs&&... compArgs ) const
+    {
+      return FnPartial<Tpl, Ret, FnArgs...>::partial( func_m.fn, std::forward<CompArgs>(compArgs)... );
+    }
+
+      // Operators
+    template <typename NewArg>
+    auto operator()(NewArg&& a)
+    {
       dispatcher condition{};
-      return dispatch(condition, newArgsTpl);
+      return dispatch(condition, std::get<tSize>(boundArgs_m)... , std::forward<NewArg>(a));
+    }
+
+    template <typename NewArg>
+    auto operator()(NewArg& a)
+    {
+      dispatcher condition{};
+      return dispatch(condition, std::get<tSize>(boundArgs_m)... , std::forward<NewArg>(a));
     }
 
 
@@ -117,11 +148,13 @@ namespace FunctionalCpp
       return FnPartial<Tpl, Ret, FnArgs...>(f, argsTpl);
     }
 
+    /*
     template < typename BoundArgsTpl >
     static auto partial( BoundArgsTpl&& argsTpl, Ret(*f)(FnArgs...) )
     {
       return FnPartial<BoundArgsTpl, Ret, FnArgs...>(f, argsTpl);
     }
+    */
 
   }; // end Partial
 

@@ -96,6 +96,7 @@ int main()
   auto args5 = std::tuple<int, float, long, double, unsigned int>(12, 2.0, 4, 8.0, 9);
 
   auto fp6 = curry(add5, 5);
+  /*
   //std::cerr << "fp6 wrapper call (5,6.0,7,val=12.0,val_=5): " << (fp6.func_m)(5,6.0f,7l,val,val_) << std::endl;
   std::cerr << "fp6 wrapper invoke {12, 2.0, 4, 8.0, 9}: " << Tuple::Vals::invoke((fp6.func_m.fn), args5) << std::endl;
 
@@ -112,7 +113,8 @@ int main()
 
   //auto fp6____ = fp6___(val);
   //std::cout << "fp6  wrapper partial_call (5)(2.0)|(7)|(val=12.0)|(val_=5): " << fp6____(val_) << std::endl;
-  /*
+
+  //*
   auto args6 = std::tuple<int, float, long, double, usigned int, short>(12, 2.0, 4, 8.0, 9);
   auto fp7 = curry(add6);
 
