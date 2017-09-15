@@ -42,20 +42,27 @@ namespace FunctionalCpp
     return FnWrapper<Ret, Args...>(f);
   }
 
+  // **************************************************
+  // LOOSELY BASED ON: www.github.com/andre-bergner/funky
+  // **************************************************
 
   // SFINAE trick to deal with incomplete set of arguments
   struct call_failed  {};
   struct call_succeed {};
 
+  // forward declaration
+  template <typename Ret, typename... FnArgs, typename... BoundArgs>
+  auto curry( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs );
+  
   // **************************************************
   // partial application function object - forward declaration
-  // LOOSELY BASED ON: www.github.com/andre-bergner/funky
   template <
     typename Tpl,
     typename Ret,
     typename... FnArgs >
   struct FnPartial
   {
+  public:
     // Types and Statics
     using Function = typename FnWrapper<Ret, FnArgs...>::Function;
     using Wrapper = FnWrapper<Ret, FnArgs...>;
@@ -63,52 +70,25 @@ namespace FunctionalCpp
     static constexpr bool lastRec = 0 == (FnWrapper<Ret, FnArgs...>::numOfArgs - tSize -1);
     using dispatcher = typename std::conditional< lastRec, call_succeed, call_failed >::type;
 
-  //private:
     // Data
     Wrapper func_m;
-    const Tpl boundArgs_m;
+    Tpl boundArgs_m;
 
-  //public:
     // Ctor
     FnPartial(Function& f, Tpl& boundArgs)
       : func_m(fnWrapper(f))
       , boundArgs_m(boundArgs)
     {}
-    /*
-    // dispacther function for correct numbers of arguments
-    template < typename ArgsTpl >
-    Ret dispatch( call_succeed , ArgsTpl&& argsTpl ) const
-    {
-      return Tuple::Vals::invoke(func_m.fn, argsTpl);
-    }
-    // dispatch function for incomplete set of arguments
-    template < typename ArgsTpl >
-    auto dispatch( call_failed , ArgsTpl&& argsTpl ) const
-    {
-      return FnPartial<Tpl, Ret, FnArgs...>::partial( std::forward<ArgsTpl>(argsTpl), func_m.fn  );
-    }
 
     // Operators
     template <typename NewArg>
     auto operator()(NewArg&& a)
     {
-    //auto oldArgs = boundArgs_m;
-    auto newArgsTpl = std::tuple_cat(std::move(boundArgs_m), std::tuple<typename std::remove_reference<NewArg>::type>(std::move(a)));
-    dispatcher condition{};
-    return dispatch(condition, newArgsTpl);
+      // return dispatch(condition, std::get<tSize>(boundArgs_m)... , std::forward<NewArg>(a));
+      return call(std::make_index_sequence<tSize>(), std::forward<NewArg>(a));
     }
 
-    template <typename NewArg>
-    auto operator()(NewArg& a)
-    {
-    //auto oldArgs = boundArgs_m;
-    auto newArgsTpl = std::tuple_cat(std::move(boundArgs_m), std::tuple<typename std::remove_reference<NewArg>::type>(std::forward<NewArg>(a)));
-    dispatcher condition{};
-    return dispatch(condition, newArgsTpl);
-    }
-
-    */
-
+  private:
     // dispacther function for correct numbers of arguments
     template < typename... CompArgs >
     Ret dispatch( call_succeed , CompArgs&&... compArgs ) const
@@ -120,41 +100,17 @@ namespace FunctionalCpp
     template < typename... CompArgs >
     auto dispatch( call_failed , CompArgs&&... compArgs ) const
     {
-      return FnPartial<Tpl, Ret, FnArgs...>::partial( func_m.fn, std::forward<CompArgs>(compArgs)... );
+      return curry( func_m.fn, std::forward<CompArgs>(compArgs)... );
     }
 
-      // Operators
-    template <typename NewArg>
-    auto operator()(NewArg&& a)
+    template < std::size_t... Ns , typename NewArg >
+    auto call( std::index_sequence<Ns...> , NewArg&& newArg )
     {
-      dispatcher condition{};
-      return dispatch(condition, std::get<tSize>(boundArgs_m)... , std::forward<NewArg>(a));
+      dispatcher condition{};      
+      return dispatch(  condition,
+                        std::get<Ns>(boundArgs_m)... ,
+                        std::forward<NewArg>(newArg) );
     }
-
-    template <typename NewArg>
-    auto operator()(NewArg& a)
-    {
-      dispatcher condition{};
-      return dispatch(condition, std::get<tSize>(boundArgs_m)... , std::forward<NewArg>(a));
-    }
-
-
-    // recursive static factories
-    //=========================================================================
-    template <typename... BoundArgs>
-    static auto partial( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs )
-    {
-      Tpl argsTpl(boundArgs...);
-      return FnPartial<Tpl, Ret, FnArgs...>(f, argsTpl);
-    }
-
-    /*
-    template < typename BoundArgsTpl >
-    static auto partial( BoundArgsTpl&& argsTpl, Ret(*f)(FnArgs...) )
-    {
-      return FnPartial<BoundArgsTpl, Ret, FnArgs...>(f, argsTpl);
-    }
-    */
 
   }; // end Partial
 
@@ -162,7 +118,8 @@ namespace FunctionalCpp
   auto curry( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs )
   {
     using BoundArgsTpl = std::tuple<typename std::remove_reference<BoundArgs>::type...>;
-    return FnPartial<BoundArgsTpl, Ret, FnArgs...>::partial(f, boundArgs...);
+    BoundArgsTpl argsTpl(boundArgs...);
+    return FnPartial<BoundArgsTpl, Ret, FnArgs...>(f, argsTpl);
   }
 
 } // end nasmespace FunctionalCpp
