@@ -26,11 +26,17 @@ namespace FunctionalCpp
     : fn(func) {}
 
     // Operators
-    Ret operator()(Args&&... as)
+    Ret operator()(Args&&... as) const
     {
       return fn( std::forward<Args>(as)... );
     }
 
+    const Function& operator~() const
+    {
+      return fn;
+    }
+
+  private:
     // Data
     Function fn;
   }; // end Wrapper
@@ -53,7 +59,7 @@ namespace FunctionalCpp
   // forward declaration
   template <typename Ret, typename... FnArgs, typename... BoundArgs>
   auto curry( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs );
-  
+
   // **************************************************
   // partial application function object - forward declaration
   template <
@@ -64,15 +70,12 @@ namespace FunctionalCpp
   {
   public:
     // Types and Statics
-    using Function = typename FnWrapper<Ret, FnArgs...>::Function;
     using Wrapper = FnWrapper<Ret, FnArgs...>;
+    using Function = typename Wrapper::Function;
     static std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tpl>::type>::value;
+    //using NewArg = typename Wrapper::getArg<tSize>::Type;
     static constexpr bool lastRec = 0 == (FnWrapper<Ret, FnArgs...>::numOfArgs - tSize -1);
     using dispatcher = typename std::conditional< lastRec, call_succeed, call_failed >::type;
-
-    // Data
-    Wrapper func_m;
-    Tpl boundArgs_m;
 
     // Ctor
     FnPartial(Function& f, Tpl& boundArgs)
@@ -88,25 +91,34 @@ namespace FunctionalCpp
       return call(std::make_index_sequence<tSize>(), std::forward<NewArg>(a));
     }
 
+    const Wrapper& operator~() const
+    {
+      return func_m;
+    }
+
   private:
+    // Data
+    Wrapper func_m;
+    Tpl boundArgs_m;
+
     // dispacther function for correct numbers of arguments
     template < typename... CompArgs >
     Ret dispatch( call_succeed , CompArgs&&... compArgs ) const
     {
-      return  func_m.fn( std::forward<CompArgs>(compArgs)... );
+      return  (~func_m)( std::forward<CompArgs>(compArgs)... );
     }
 
     // dispatch function for incomplete set of arguments
     template < typename... CompArgs >
     auto dispatch( call_failed , CompArgs&&... compArgs ) const
     {
-      return curry( func_m.fn, std::forward<CompArgs>(compArgs)... );
+      return curry( (~func_m), std::forward<CompArgs>(compArgs)... );
     }
 
     template < std::size_t... Ns , typename NewArg >
     auto call( std::index_sequence<Ns...> , NewArg&& newArg )
     {
-      dispatcher condition{};      
+      dispatcher condition{};
       return dispatch(  condition,
                         std::get<Ns>(boundArgs_m)... ,
                         std::forward<NewArg>(newArg) );
