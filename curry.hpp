@@ -8,7 +8,7 @@ namespace FunctionalCpp
 {
   // **************************************************
   // simple function wrapper object
-  // with extras: Functio type_id & numOfArgs & Nth Arg Type
+  // with extras: Function type_id & numOfArgs & Nth Arg Type
   template <typename Ret, typename... Args>
   struct FnWrapper
   {
@@ -16,10 +16,7 @@ namespace FunctionalCpp
     static size_t constexpr numOfArgs = sizeof...(Args);
     using Function = Ret(*)(Args...);
     template <size_t N>
-    struct getArg
-    {
-      using Type = get_type<N, Args...>;
-    };
+    using getArg = get_type<N, Args...>;
 
     // Ctor
     FnWrapper (Function func)
@@ -73,7 +70,7 @@ namespace FunctionalCpp
     using Wrapper = FnWrapper<Ret, FnArgs...>;
     using Function = typename Wrapper::Function;
     static std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tpl>::type>::value;
-    //using NewArg = typename Wrapper::getArg<tSize>::Type;
+    using NewArg = typename get_type<tSize, FnArgs...>::type;
     static constexpr bool lastRec = 0 == (FnWrapper<Ret, FnArgs...>::numOfArgs - tSize -1);
     using dispatcher = typename std::conditional< lastRec, call_succeed, call_failed >::type;
 
@@ -84,10 +81,8 @@ namespace FunctionalCpp
     {}
 
     // Operators
-    template <typename NewArg>
     auto operator()(NewArg&& a)
     {
-      // return dispatch(condition, std::get<tSize>(boundArgs_m)... , std::forward<NewArg>(a));
       return call(std::make_index_sequence<tSize>(), std::forward<NewArg>(a));
     }
 

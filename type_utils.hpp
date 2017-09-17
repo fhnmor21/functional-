@@ -38,7 +38,7 @@ namespace FunctionalCpp
     {
         using type = Cp;
     };
-    
+
     template<
             template<typename> class Cp,
             typename U,
@@ -53,7 +53,7 @@ namespace FunctionalCpp
             typename U,
 			typename T,
 			typename...Ts>
-    struct rebind_type<Cp<T, Ts...>, U> 
+    struct rebind_type<Cp<T, Ts...>, U>
     {
         using type = Cp<U, Ts...>;
 	};
@@ -77,7 +77,7 @@ namespace FunctionalCpp
     {
       typedef T type;
     };
-   
+
 
     ///
     // nth element from an template arguments pack

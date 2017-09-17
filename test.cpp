@@ -38,7 +38,7 @@ double add6 (int a, float b, long c, double& d, unsigned int& e, const unsigned 
 
 
 
-// testing 
+// testing
 int main()
 {
 
@@ -50,7 +50,8 @@ int main()
   std::function<int(int,int)> std_add2 = add2;
   auto fw = fnWrapper(add2);
   auto std_fw = std::function<int(int,int)>(~fw);
-  std::cerr << "add2 call (5,6): " << add2(5,6) << std::endl;
+  FnWrapper<int,int,int>::getArg<0>::type valArg = 5;
+  std::cerr << "add2 call (5,6): " << add2(valArg, 6) << std::endl;
   std::cerr << "add2 invoke {4,8}: " << Tuple::Vals::invoke(add2, args2) << std::endl;
   std::cerr << "std_add2 call (5,6): " << std_add2(5,6) << std::endl;
   std::cerr << "std_add2 invoke {4,8}: " << Tuple::Vals::invoke(std_add2, args2) << std::endl;
