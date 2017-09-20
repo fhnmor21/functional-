@@ -36,6 +36,15 @@ double add6 (int a, float b, long c, double& d, unsigned int& e, const unsigned 
   return a+b+c+d+e+f;
 }
 
+double sqr (int a)
+{
+  return a*a;
+}
+
+auto rem = [](int a, int b)
+{
+  return (a % b);
+};
 
 
 // testing
@@ -61,6 +70,11 @@ int main()
 
   // TESTING: Partial application of arguments
   // ===
+
+  // ONE argument
+  auto fp0 = curry(sqr);
+  std::cerr << "\nfp0 wrapper call (5): " << (~fp0)(5) << std::endl;
+  std::cerr << "fp0 wrapper partial_call (3): " << fp0(3) << std::endl;
 
   // TWO arguments
   auto fp1 = curry(add2);
@@ -123,7 +137,21 @@ int main()
   auto fp7____ = fp7___(val_);
   std::cout << "fp7  wrapper partial_call <4>|(6.0)|(7)|(val=12.0)|(val_=5)|(1): " << fp7____(1) << std::endl;
 
-  // NOTE: this should not work because currying needs at least 2 arguments
-  /* auto f1 = curry(add1);
-     std::cout << f1(4) << std::endl;  */
+  // ===
+  // TWO arguments lambda
+  /*
+  auto lb2 = curry(rem);
+  std::cerr << "\nlb2 wrapper call (7,4): " << (~lb2)(7,4) << std::endl;
+  auto lb2_ = lb2(8);
+  std::cout << "lb2  wrapper partial_call (8)|(5): " << lb2_(5) << std::endl;
+  */
+
+  // ===
+  // TWO arguments std::function
+  std::function<int(int,int)> sf2 = rem;
+  auto sf2_ = curry(sf2);
+  std::cerr << "\nsf2 wrapper call (7,4): " << (~sf2_)(7,4) << std::endl;
+  auto sf2__ = sf2_(8);
+  std::cout << "sf2  wrapper partial_call (8)|(5): " << sf2__(5) << std::endl;
+
 }

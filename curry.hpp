@@ -129,6 +129,14 @@ namespace FunctionalCpp
     return FnPartial<BoundArgsTpl, Ret, FnArgs...>(f, argsTpl);
   }
 
+  template <typename Ret, typename... FnArgs, typename... BoundArgs>
+  auto curry( std::function<Ret(FnArgs...)> f, BoundArgs&&... boundArgs )
+  {
+    using BoundArgsTpl = std::tuple<typename std::remove_reference<BoundArgs>::type...>;
+    BoundArgsTpl argsTpl(boundArgs...);
+    return FnPartial<BoundArgsTpl, Ret, FnArgs...>(f.target< Ret(*f)(FnArgs...) >, argsTpl);
+  }
+
 } // end nasmespace FunctionalCpp
 
 #endif
