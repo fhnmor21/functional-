@@ -19,8 +19,14 @@ namespace FunctionalCpp
     // using is_mappable = std::is_same<arg, value>::value;
 
     using ifunctor = F;
-    using ofunctor = rebind_type<F, result>;
+    using ofunctor = typename rebind_type<F, result>::type;
   };
+
+  /*
+  template <template <typename> class F, typename R, typename A1>
+  typename FunctorTypes<F<A1>, R, A1>::ofunctor
+  fmap(typename FunctorTypes<F<A1>, R, A1>::function a2b_, typename FunctorTypes<F<A1>, R, A1>::ifunctor& fa_ );
+  */
 
   // simple functor map
   // template <typename F, typename R, typename A1>
@@ -51,16 +57,23 @@ namespace FunctionalCpp
   // local implementations / instatiations for STL containers
 
   // instance for std::vector
-  template <typename T, typename R, typename A1>
-  typename FunctorTypes<std::vector<T>, R, A1>::ofunctor&&
-  fmap(typename FunctorTypes<std::vector<T>, R, A1>::function fn_a2b, typename FunctorTypes<std::vector<T>, R, A1>::ifunctor& fa_ )
+
+  /*
+  template <typename R, typename A1>
+  typename FunctorTypes<std::vector<A1>, R, A1>::ofunctor
+  fmap<std::vector<A1>,R,A1>(typename FunctorTypes<std::vector<A1>, R, A1>::function fn_a2b,
+                                 typename FunctorTypes<std::vector<A1>, R, A1>::ifunctor& fa_ )
   {
-    typename FunctorTypes<std::vector<T>, R, A1>::ofunctor fb_;
+    typename FunctorTypes<std::vector<A1>, R, A1>::ofunctor fb_;
 
-    std::transform(fa_.begin(), fa_.end(), fb_.begin(), fn_a2b);
-    return fb_;
+    for (auto& oldVal: fa_)
+    {
+      auto newVal = fn_a2b(oldVal);
+      fb_.push_back(newVal);
+    }
+    return std::move(fb_);
   }
-
+  */
 
 } // end namespace FunctionalCpp
 

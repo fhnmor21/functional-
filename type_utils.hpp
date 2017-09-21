@@ -49,14 +49,14 @@ namespace FunctionalCpp
     };
 
 	template<
-            template<typename...> class Cp,
-            typename U,
+      template<typename...> class Cp,
+      typename U,
 			typename T,
 			typename...Ts>
     struct rebind_type<Cp<T, Ts...>, U>
     {
         using type = Cp<U, Ts...>;
-	};
+    };
 
     ///
     // try to find the value type from containers
