@@ -6,20 +6,21 @@
 
 namespace FunctionalCpp
 {
+ 
   // **************************************************
   // simple function wrapper object
   // with extras: Function type_id & numOfArgs & Nth Arg Type
   template <typename Ret, typename... Args>
-  struct FnWrapper
+  struct Wrapper
   {
     // types
     static size_t constexpr numOfArgs = sizeof...(Args);
-    using Function = Ret(*)(Args...);
+    using Function = std::function<Ret(Args...)>;
     template <size_t N>
     using getArg = get_type<N, Args...>;
 
-    // Ctor
-    FnWrapper (Function func)
+    // Ctors
+    Wrapper (Function func)
     : fn(func) {}
 
     // Operators
@@ -40,9 +41,16 @@ namespace FunctionalCpp
 
   // factory function for FN Wrapper
   template <typename Ret, typename... Args>
-  auto fnWrapper(Ret(*f)(Args...))
+  auto wrapper(std::function<Ret(Args...)> f)
   {
-    return FnWrapper<Ret, Args...>(f);
+    return Wrapper<Ret, Args...>(f);
+  }
+
+  // factory function for FN Wrapper
+  template <typename Ret, typename... Args>
+  auto wrapper(Ret(*f)(Args...))
+  {
+    return Wrapper<Ret, Args...>(std::function<Ret(Args...)>(f));
   }
 
   // **************************************************
@@ -55,7 +63,10 @@ namespace FunctionalCpp
 
   // forward declaration
   template <typename Ret, typename... FnArgs, typename... BoundArgs>
-  auto curry( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs );
+  auto curry( Ret(f)(FnArgs...), BoundArgs&&... boundArgs );
+
+  template <typename Ret, typename... FnArgs, typename... BoundArgs>
+  auto curry( std::function<Ret(FnArgs...)> f, BoundArgs&&... boundArgs );
 
   // **************************************************
   // partial application function object - forward declaration
@@ -63,22 +74,23 @@ namespace FunctionalCpp
     typename Tpl,
     typename Ret,
     typename... FnArgs >
-  struct FnPartial
+  struct Partial
   {
-  public:
-    // Types and Statics
-    using Wrapper = FnWrapper<Ret, FnArgs...>;
-    using Function = typename Wrapper::Function;
+  private:
+    using Wrapper_ = Wrapper<Ret, FnArgs...>;
     static std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tpl>::type>::value;
-    using NewArg = typename get_type<tSize, FnArgs...>::type;
-    static constexpr bool lastRec = 0 == (FnWrapper<Ret, FnArgs...>::numOfArgs - tSize -1);
+    static constexpr bool lastRec = 0 == (Wrapper<Ret, FnArgs...>::numOfArgs - tSize -1);
     using dispatcher = typename std::conditional< lastRec, call_succeed, call_failed >::type;
 
-    // Ctor
-    FnPartial(Function& f, Tpl& boundArgs)
-      : func_m(fnWrapper(f))
-      , boundArgs_m(boundArgs)
-    {}
+  public:
+    // Types and Statics
+    using Function = typename Wrapper_::Function;
+    using NewArg = typename get_type<tSize, FnArgs...>::type;
+    
+    Partial(Function f, Tpl& boundArgs)
+    : func_m(Wrapper_(f))
+    , boundArgs_m(boundArgs)
+    {}  
 
     // Operators
     auto operator()(NewArg&& a)
@@ -86,14 +98,14 @@ namespace FunctionalCpp
       return call(std::make_index_sequence<tSize>(), std::forward<NewArg>(a));
     }
 
-    const Wrapper& operator~() const
+    const Wrapper_& operator~() const
     {
       return func_m;
     }
 
   private:
     // Data
-    Wrapper func_m;
+    Wrapper_ func_m;
     Tpl boundArgs_m;
 
     // dispacther function for correct numbers of arguments
@@ -122,11 +134,12 @@ namespace FunctionalCpp
   }; // end Partial
 
   template <typename Ret, typename... FnArgs, typename... BoundArgs>
-  auto curry( Ret(*f)(FnArgs...), BoundArgs&&... boundArgs )
+  auto curry( Ret(f)(FnArgs...), BoundArgs&&... boundArgs )
   {
     using BoundArgsTpl = std::tuple<typename std::remove_reference<BoundArgs>::type...>;
     BoundArgsTpl argsTpl(boundArgs...);
-    return FnPartial<BoundArgsTpl, Ret, FnArgs...>(f, argsTpl);
+    std::function<Ret(FnArgs...)>func = f;
+    return Partial<BoundArgsTpl, Ret, FnArgs...>(std::function<Ret(FnArgs...)>(func), argsTpl);
   }
 
   template <typename Ret, typename... FnArgs, typename... BoundArgs>
@@ -134,7 +147,7 @@ namespace FunctionalCpp
   {
     using BoundArgsTpl = std::tuple<typename std::remove_reference<BoundArgs>::type...>;
     BoundArgsTpl argsTpl(boundArgs...);
-    return FnPartial<BoundArgsTpl, Ret, FnArgs...>(f.target< Ret(*f)(FnArgs...) >, argsTpl);
+    return Partial<BoundArgsTpl, Ret, FnArgs...>(f, argsTpl);
   }
 
 } // end nasmespace FunctionalCpp

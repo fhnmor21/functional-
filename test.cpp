@@ -57,14 +57,14 @@ int main()
   double  val = 12.0;
 
   std::function<int(int,int)> std_add2 = add2;
-  auto fw = fnWrapper(add2);
+  auto fw = wrapper(add2);
   auto std_fw = std::function<int(int,int)>(~fw);
-  FnWrapper<int,int,int>::getArg<0>::type valArg = 5;
-  std::cerr << "add2 call (5,6): " << add2(valArg, 6) << std::endl;
+  Wrapper<int,int,int>::getArg<0>::type valArg = 5;
+  std::cerr << "\nadd2 call (5,6): " << add2(valArg, 6) << std::endl;
   std::cerr << "add2 invoke {4,8}: " << Tuple::Vals::invoke(add2, args2) << std::endl;
-  std::cerr << "std_add2 call (5,6): " << std_add2(5,6) << std::endl;
+  std::cerr << "\nstd_add2 call (5,6): " << std_add2(5,6) << std::endl;
   std::cerr << "std_add2 invoke {4,8}: " << Tuple::Vals::invoke(std_add2, args2) << std::endl;
-  std::cerr << "fw call (5,6): " << fw(5,6) << std::endl;
+  std::cerr << "\nfw call (5,6): " << fw(5,6) << std::endl;
   std::cerr << "fw invoke {4,8}: " << Tuple::Vals::invoke(~fw, args2) << std::endl;
   std::cerr << "std_fw invoke {4,8}: " << Tuple::Vals::invoke(std_fw, args2) << std::endl;
 
@@ -94,13 +94,13 @@ int main()
   std::cerr << "\nfp3 wrapper call (5,6,7): " << (~fp3)(5,6,7)  << std::endl;
   std::cerr << "fp3 wrapper invoke {2,4,8}: " << Tuple::Vals::invoke((~~fp3), args3) << std::endl;
   std::cerr << "fp3 wrapper partial_call <2, 1>|(3): " << fp3(3) << std::endl;
-
+  
   auto fp4 = curry(add3, 1);
   std::cerr << "\nfp4 wrapper call (5,6,7): " << (~fp4)(5,6,7)  << std::endl;
   std::cerr << "fp4 wrapper invoke {2,4,8}: " << Tuple::Vals::invoke((~~fp4), args3) << std::endl;
   auto fp4_ = fp4(2);
   std::cerr << "fp4 wrapper partial_call <1>|(2)|(3): " << fp4_(3) << std::endl;
-
+  
   // ===
   auto args4 = std::tuple<int, float, long, double>(12, 2.0, 4, 8.0);
   // FOUR arguments
@@ -112,7 +112,7 @@ int main()
   auto fp5__ = fp5_(2.0f);
   auto fp5___ = fp5__(7);
   std::cerr << "fp5 wrapper partial_call (5)|(2.0)|(7)|(val=12): " << fp5___(val) << std::endl;
-
+  
   // ===
   unsigned int val_ = 5;
   auto args5 = std::tuple<int, float, long, double, unsigned int>(12, 2.0, 4, 8.0, 9);
@@ -124,7 +124,7 @@ int main()
   auto fp6___ = fp6__(7);
   auto fp6_____ = fp6___(val);
   std::cout << "fp6  wrapper partial_call <5>|(2.0)|(7)|(val=12.0)|(val_=5): " << fp6_____(val_) << std::endl;
-
+  
   // ===
   auto args6 = std::tuple<int, float, long, double, unsigned int, short>(12, 2.0f, 4l, 8.0, 9, 1);
   // SIX arguments + binding
@@ -135,23 +135,32 @@ int main()
   auto fp7__ = fp7_(7);
   auto fp7___ = fp7__(val);
   auto fp7____ = fp7___(val_);
-  std::cout << "fp7  wrapper partial_call <4>|(6.0)|(7)|(val=12.0)|(val_=5)|(1): " << fp7____(1) << std::endl;
-
-  // ===
-  // TWO arguments lambda
-  /*
-  auto lb2 = curry(rem);
-  std::cerr << "\nlb2 wrapper call (7,4): " << (~lb2)(7,4) << std::endl;
-  auto lb2_ = lb2(8);
-  std::cout << "lb2  wrapper partial_call (8)|(5): " << lb2_(5) << std::endl;
-  */
+  std::cout << "fp7 wrapper partial_call <4>|(6.0)|(7)|(val=12.0)|(val_=5)|(1): " << fp7____(1) << std::endl;
 
   // ===
   // TWO arguments std::function
-  std::function<int(int,int)> sf2 = rem;
+  std::function<int(int,int)> sf2 = add2;
   auto sf2_ = curry(sf2);
-  std::cerr << "\nsf2 wrapper call (7,4): " << (~sf2_)(7,4) << std::endl;
+  std::cerr << "\nsf2 add wrapper call (7,4): " << (~sf2_)(7,4) << std::endl;
   auto sf2__ = sf2_(8);
-  std::cout << "sf2  wrapper partial_call (8)|(5): " << sf2__(5) << std::endl;
+  std::cout << "sf2 add wrapper partial_call (8)|(5): " << sf2__(5) << std::endl;
+
+  // ===
+  // TWO arguments std::function wrapping a lambad
+  std::function<int(int,int)> sf3 = rem;
+  auto sf3_ = curry(sf3);
+  std::cerr << "\nsf3 mod wrapper call (7,4): " << (~sf3_)(7,4) << std::endl;
+  auto sf3__ = sf3_(9);
+  std::cout << "sf3 mod wrapper partial_call (9)|(5): " << sf3__(5) << std::endl;
+
+  // ===
+  // TWO arguments std::bind wrapping a function 3-ary (add3)
+  // NOTE: this is redundant since we can bind values using curry() directly
+  using namespace std::placeholders; 
+  std::function<int(int,int)> sf4 = std::bind(add3, 5, _1, _2);
+  auto sf4_ = curry(sf4);
+  std::cerr << "\nsf4 add wrapper call <5>|(7,4): " << (~sf4_)(7,4) << std::endl;
+  auto sf4__ = sf4_(8);
+  std::cout << "sf4 add wrapper partial_call <5>|(8)|(7): " << sf4__(7) << std::endl;
 
 }
