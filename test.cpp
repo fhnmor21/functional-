@@ -1,7 +1,8 @@
 #include <cstddef>
 #include <iostream>
-#include "curry.hpp"
-#include "functor.hpp"
+
+#include "vector.hpp"
+
 
 using namespace FunctionalCpp;
 
@@ -55,12 +56,12 @@ int main()
   // ===
   auto args2 = std::tuple<int, int>(4, 8);
   double  val = 12.0;
-/*
+
   // ONE argument
   auto fp0 = curry(sqr);
   std::cerr << "\nfp0 wrapper call (5): " << (!fp0)(5) << std::endl;
   std::cerr << "fp0 wrapper partial_call (3): " << fp0(3) << std::endl;
-*/
+
   // TWO arguments
   auto fp1 = curry(add2);
   std::cerr << "\nfp1 wrapper call (!fp1)(5,6): " << (!fp1)(5,6) << std::endl;
@@ -82,7 +83,7 @@ int main()
   std::cerr << "fp3 wrapper invoke (!fp3){2,4,8}: " << Tuple::Vals::invoke((!fp3), args3) << std::endl;
   std::cerr << "fp3 wrapper partial_call fp3<2, 1>|(3): " << fp3(3) << std::endl;
   std::cerr << "fp3.fn wrapper partial_call (~fp3)<2, 1>|(3): " << (~fp3)(3) << std::endl;
-  
+
   auto fp4 = curry(add3, 1);
   std::cerr << "\nfp4 wrapper call (!fp4)(5,6,7): " << (!fp4)(5,6,7)  << std::endl;
   std::cerr << "fp4 wrapper invoke (!fp4){2,4,8}: " << Tuple::Vals::invoke((!fp4), args3) << std::endl;
@@ -128,7 +129,7 @@ int main()
   auto fp7___ = fp7__(val);
   auto fp7____ = fp7___(val_);
   std::cout << "fp7 wrapper partial_call <4>|(6.0)|(7)|(val=12.0)|(val_=5)|(1): " << fp7____(1) << std::endl;
-/*
+
   // ===
   // TWO arguments std::function
   std::function<int(int,int)> sf2 = add2;
@@ -154,22 +155,16 @@ int main()
   std::cerr << "\nsf4 add wrapper call (!sf4_)<5>|(7,4): " << (!sf4_)(7,4) << std::endl;
   auto sf4__ = sf4_(8);
   std::cout << "sf4 add wrapper partial_call <5>|(8)|(7): " << sf4__(7) << std::endl;
-*/
-  /*
+
   // ===
   // FUNCTOR: std::vector
-  std::tuple<> tpl{};
-  using Functor = std::vector<int>;
-  FunctorTypes<Functor, int, int>::function f = fp2;
-  FunctorTypes<Functor, int, int>::ifunctor data{1,2,3,4,5,6};
-  auto processed = fmap<int, int>(f, data);
-
+  std::vector<int> data{1, 2, 3, 4, 5};
+  auto processed = fmap(~fp2, data);
   std::cout << std::endl << " : ";
   for (auto & p: processed)
   {
     std::cout << p << " : ";
   }
   std::cout << std::endl;
-  */
 
 }
