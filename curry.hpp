@@ -22,6 +22,43 @@ namespace FunctionalCpp
   auto curry( std::function<Ret(FnArgs...)> f, BoundArgs&&... boundArgs );
 
   // **************************************************
+  // std::function return type for partial applications
+  template <
+    size_t N,
+    typename Ret,
+    typename... Args >
+  struct Return
+  {};
+
+  template <
+    size_t N,
+    typename Ret,
+    typename Arg,
+    typename... Args >
+  struct Return< N, Ret, Arg, Args... > : Return< N-1, Ret, Args... >
+  {};
+
+  template <
+    typename Ret,
+    typename Arg,
+    typename... Args >
+  struct Return< 0, Ret, Arg, Args... >
+  {
+  private:
+    using R = typename Return< 0, Ret, Args... >::type;
+  public:
+    using type = std::function< R(Arg) >;
+  };
+
+  template <
+    typename Ret >
+  struct Return< 0, Ret >
+  {
+  public:
+    using type = Ret;
+  };
+
+  // **************************************************
   // partial application function object - forward declaration
   template <
     typename Tpl,
@@ -37,12 +74,16 @@ namespace FunctionalCpp
     using dispatcher = typename std::conditional< lastRec, call_succeed, call_failed >::type;
     using FnWrapper = std::function<Ret(FnArgs...)>;
     using NewArg = typename get_type<tSize, FnArgs...>::type;
+    using OpReturn = typename Return<tSize+1, Ret, FnArgs...>::type;
+    using Function = std::function<OpReturn(NewArg)>;
 
   public:
     Partial(FnWrapper f, Tpl& boundArgs)
-      : func_m(f)
+      : wrapper_m(f)
       , boundArgs_m(boundArgs)
-    {}
+    {
+      fn_m = (std::function<OpReturn(NewArg)>(*this));
+    }
 
     // Operators
     // ===
@@ -53,28 +94,35 @@ namespace FunctionalCpp
     }
 
     // returns function wrapper
-    const FnWrapper& operator~() const
+    const FnWrapper& operator!() const
     {
-      return func_m;
+      return wrapper_m;
+    }
+
+    // returns function wrapper
+    const auto& operator~() const
+    {
+      return fn_m;
     }
 
   private:
     // Data
-    FnWrapper func_m;
+    FnWrapper wrapper_m;
     Tpl boundArgs_m;
+    Function fn_m;
 
     // dispacther function for correct numbers of arguments
     template < typename... CompArgs >
     Ret dispatch( call_succeed , CompArgs&&... compArgs ) const
     {
-      return  (func_m)( std::forward<CompArgs>(compArgs)... );
+      return  (wrapper_m)( std::forward<CompArgs>(compArgs)... );
     }
 
     // dispatch function for incomplete set of arguments
     template < typename... CompArgs >
     auto dispatch( call_failed , CompArgs&&... compArgs ) const
     {
-      return curry( (func_m), std::forward<CompArgs>(compArgs)... );
+      return curry( (wrapper_m), std::forward<CompArgs>(compArgs)... );
     }
 
     template < std::size_t... Ns , typename NewArg >
