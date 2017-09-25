@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <iostream>
 
+//#include "curry.hpp"
 #include "vector.hpp"
 
 
@@ -155,7 +156,7 @@ int main()
   std::cerr << "\nsf4 add wrapper call (!sf4_)<5>|(7,4): " << (!sf4_)(7,4) << std::endl;
   auto sf4__ = sf4_(8);
   std::cout << "sf4 add wrapper partial_call <5>|(8)|(7): " << sf4__(7) << std::endl;
-
+  /*
   // ===
   // FUNCTOR: std::vector
   std::vector<int> data{1, 2, 3, 4, 5};
@@ -166,5 +167,5 @@ int main()
     std::cout << p << " : ";
   }
   std::cout << std::endl;
-
+  */
 }
