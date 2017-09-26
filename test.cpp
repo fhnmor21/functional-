@@ -156,16 +156,28 @@ int main()
   std::cerr << "\nsf4 add wrapper call (!sf4_)<5>|(7,4): " << (!sf4_)(7,4) << std::endl;
   auto sf4__ = sf4_(8);
   std::cout << "sf4 add wrapper partial_call <5>|(8)|(7): " << sf4__(7) << std::endl;
-  /*
+
   // ===
   // FUNCTOR: std::vector
-  std::vector<int> data{1, 2, 3, 4, 5};
-  auto processed = fmap(~fp2, data);
-  std::cout << std::endl << " : ";
-  for (auto & p: processed)
+  std::vector<int> fa_1{1, 2, 3, 4, 5};
+  auto fb_1 = fmap(~fp2, fa_1);
+
+  std::cout << "\nfmap(~fp2<2>, fa_1 = [1..5]) -> fb_1 = : "  ;
+  for (auto & b: fb_1)
   {
-    std::cout << p << " : ";
+    std::cout << b << " : ";
   }
   std::cout << std::endl;
-  */
+
+  auto fa2b = fmap(~fp1, fa_1);
+  auto fb_2 = apply(fa2b, fa_1);
+  
+  std::cout << "\nfmap(~fp1, fa_1 = [1..5]) -> fa_2\n"  ;
+  std::cout << "\napply(fa2b, fa_1 = [1..5]) -> fb_2 = : "  ;
+  // for (auto & b: fb_1)
+  // {
+  //   std::cout << b << " : ";
+  // }
+  // std::cout << std::endl;
+
 }
