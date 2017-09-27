@@ -159,7 +159,7 @@ int main()
 
   // ===
   // FUNCTOR: std::vector
-  std::vector<int> fa_1{1, 2, 3, 4, 5};
+  Vector<int> fa_1{1, 2, 3, 4, 5};
   auto fb_1 = fmap(~fp2, fa_1);
 
   std::cout << "\nfmap(~fp2<2>, fa_1 = [1..5]) -> fb_1 = : "  ;
@@ -171,6 +171,8 @@ int main()
 
   auto fa2b = fmap(~fp1, fa_1);
   auto fb_2 = apply(fa2b, fa_1);
+  // const std::vector<std::function<int(int)> >&
+  // std::vector<std::function<int(int)>, std::allocator<int> >
   
   std::cout << "\nfmap(~fp1, fa_1 = [1..5]) -> fa_2\n"  ;
   std::cout << "\napply(fa2b, fa_1 = [1..5]) -> fb_2 = : "  ;

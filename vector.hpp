@@ -11,14 +11,16 @@ namespace FunctionalCpp
   // local implementations / instatiations for STL containers
 
   // instance for std::vector
+  template <typename V>
+  using Vector = std::vector<V, std::allocator<V>>;
 
   template < typename R, typename A1 >
-  struct FunctorImpl<std::vector<A1>, R, A1>
+  struct FunctorImpl<Vector<A1>, R, A1>
   {
-    static auto fmap(const typename Functor<std::vector<A1>, R, A1>::FuncA2B& a2b,
-                     const typename Functor<std::vector<A1>, R, A1>::FunctorA& fa)
+    static typename Functor<Vector<A1>, R, A1>::FunctorB fmap(const typename Functor<Vector<A1>, R, A1>::FuncA2B a2b,
+                     const typename Functor<Vector<A1>, R, A1>::FunctorA& fa)
     {
-      typename Functor<std::vector<A1>, R, A1>::FunctorB fb;
+      typename Functor<Vector<A1>, R, A1>::FunctorB fb;
 
       for (auto& oldVal: fa)
       {
@@ -32,12 +34,12 @@ namespace FunctionalCpp
 
   template < typename R,
              typename A1 >
-  struct ApplicativeImpl<std::vector<A1>, R, A1>
+  struct ApplicativeImpl<Vector<A1>, R, A1>
   {
-    static auto apply(const typename Applicative<std::vector<A1>, R, A1>::FunctorA2B& fa2b,
-                      const typename Applicative<std::vector<A1>, R, A1>::FunctorA& fa)
+    static auto apply(const typename Applicative<Vector<A1>, R, A1>::FunctorA2B& fa2b,
+                      const typename Applicative<Vector<A1>, R, A1>::FunctorA& fa)
     {
-      typename Applicative<std::vector<A1>, R, A1>::FunctorB fb;
+      typename Applicative<Vector<A1>, R, A1>::FunctorB fb;
 
       for(auto& a2b : fa2b)
       {

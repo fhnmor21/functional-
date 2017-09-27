@@ -83,7 +83,6 @@ namespace FunctionalCpp
     using NewArg = typename get_type<tSize, FnArgs...>::type;
     using OpNested = typename Impl_::Nested<tSize+1, Ret, FnArgs...>::type;
     using FnCurried = typename Impl_::Nested<tSize, Ret, FnArgs...>::type;
-    // using Curried_ = std::function<OpNested(NewArg)>;
 
   public:
     Partial(FnWrapper f, Tpl& boundArgs)
