@@ -51,6 +51,6 @@ namespace FunctionalCpp
     return Applicative<F<Function<Arg,Ret>>, F<Arg>, F<Ret>>::apply(fa2b, fa);
   }
 
-} // end namespace FuncA2BalCpp
+} // end namespace FunctionalCpp
 
 #endif // FUNCTOR_HPP

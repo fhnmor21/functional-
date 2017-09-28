@@ -1,8 +1,7 @@
 #ifndef CURRY_HPP
 #define CURRY_HPP
 
-#include "type_utils.hpp"
-#include "invoke.hpp"
+#include "arrow.hpp"
 
 namespace FunctionalCpp
 {
@@ -16,53 +15,10 @@ namespace FunctionalCpp
 
   // forward declaration
   template <typename Ret, typename... FnArgs, typename... BoundArgs>
-  auto curry( Ret(f)(FnArgs...), BoundArgs&&... boundArgs );
+  auto make_curried( Ret(f)(FnArgs...), BoundArgs&&... boundArgs );
 
   template <typename Ret, typename... FnArgs, typename... BoundArgs>
-  auto curry( std::function<Ret(FnArgs...)> f, BoundArgs&&... boundArgs );
-
-  template <typename A, typename B>
-  using Function = std::function<B(A)>;
-
-  namespace Impl_
-  {
-    // **************************************************
-    // recursive std::function return type for partial applications
-    template < size_t N,
-              typename Ret,
-              typename... Args >
-    struct Nested
-    {};
-
-    template < size_t N,
-              typename Ret,
-              typename Arg,
-              typename... Args >
-    struct Nested< N, Ret, Arg, Args... > : Nested< N-1, Ret, Args... >
-    {};
-
-    template < typename Ret,
-              typename Arg,
-              typename... Args >
-    struct Nested< 0, Ret, Arg, Args... >
-    {
-    private:
-      using R = typename Nested< 0, Ret, Args... >::type;
-    public:
-      using type = Function<Arg, R>;
-    };
-
-    template < typename Ret >
-    struct Nested< 0, Ret >
-    {
-    public:
-      using type = Ret;
-    };
-  } // end namespace Impl_
-
-  template < typename Ret,
-             typename... Args>
-  using Curried = Impl_::Nested<0, Ret, Args...>;
+  auto make_curried( std::function<Ret(FnArgs...)> f, BoundArgs&&... boundArgs );
 
   // **************************************************
   // partial application function object - forward declaration
@@ -79,12 +35,14 @@ namespace FunctionalCpp
     static constexpr bool lastRec = ( 0 == (numOfArgs - tSize -1) );
     // Types
     using Dispatcher = typename std::conditional< lastRec, call_succeed, call_failed >::type;
-    using FnWrapper = std::function<Ret(FnArgs...)>;
-    using NewArg = typename get_type<tSize, FnArgs...>::type;
-    using OpNested = typename Impl_::Nested<tSize+1, Ret, FnArgs...>::type;
-    using FnCurried = typename Impl_::Nested<tSize, Ret, FnArgs...>::type;
+    using FnWrapper  = std::function<Ret(FnArgs...)>;
+    using NewArg     = typename get_type<tSize, FnArgs...>::type;
+    using OpNested   = typename Impl_::Nested<tSize+1, Ret, FnArgs...>::type;
+    using FnCurried  = typename Impl_::Nested<tSize, Ret, FnArgs...>::type;
 
   public:
+
+    // Ctor
     Partial(FnWrapper f, Tpl& boundArgs)
       : wrapper_m(f)
       , boundArgs_m(boundArgs)
@@ -92,24 +50,35 @@ namespace FunctionalCpp
       fn_m = (std::function<OpNested(NewArg)>(*this));
     }
 
+    // returns nestleed function - curried
+    const auto& curried() const
+    {
+      return fn_m;
+    }
+
+    // return flat args function - uncurried
+    const FnWrapper& uncurried() const
+    {
+      return wrapper_m;
+    }
+
     // Operators
     // ===
+
     // calls function object
     auto operator()(NewArg&& a)
     {
       return call(std::make_index_sequence<tSize>(), std::forward<NewArg>(a));
     }
 
-    // returns function wrapper
-    const FnWrapper& operator!() const
-    {
-      return wrapper_m;
-    }
-
-    // returns function wrapper
     const auto& operator~() const
     {
-      return fn_m;
+      return this->curried();
+    }
+
+    const FnWrapper& operator!() const
+    {
+      return this->uncurried();
     }
 
   private:
@@ -129,7 +98,7 @@ namespace FunctionalCpp
     template < typename... CompArgs >
     auto dispatch( call_failed , CompArgs&&... compArgs ) const
     {
-      return curry( (wrapper_m), std::forward<CompArgs>(compArgs)... );
+      return make_curried( (wrapper_m), std::forward<CompArgs>(compArgs)... );
     }
 
     template < std::size_t... Ns , typename NewArg >
@@ -144,14 +113,14 @@ namespace FunctionalCpp
   }; // end Partial
 
   template <typename Ret, typename... FnArgs, typename... BoundArgs>
-  auto curry( Ret(f)(FnArgs...), BoundArgs&&... boundArgs )
+  auto make_curried( Ret(f)(FnArgs...), BoundArgs&&... boundArgs )
   {
     std::function<Ret(FnArgs...)>func = f;
-    return curry(func, std::forward<BoundArgs>(boundArgs)...);
+    return make_curried(func, std::forward<BoundArgs>(boundArgs)...);
   }
 
   template <typename Ret, typename... FnArgs, typename... BoundArgs>
-  auto curry( std::function<Ret(FnArgs...)> f, BoundArgs&&... boundArgs )
+  auto make_curried( std::function<Ret(FnArgs...)> f, BoundArgs&&... boundArgs )
   {
     using BoundArgsTpl = std::tuple<typename std::remove_reference<BoundArgs>::type...>;
     BoundArgsTpl argsTpl(boundArgs...);
