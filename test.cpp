@@ -3,6 +3,8 @@
 
 //#include "curry.hpp"
 #include "vector.hpp"
+#include "list.hpp"
+#include "dict.hpp"
 
 
 using namespace FunctionalCpp;
@@ -62,7 +64,7 @@ int main()
   auto fp0 = make_curried(sqr);
   std::cerr << "\nfp0 wrapper call (5): " << (!fp0)(5) << std::endl;
   std::cerr << "fp0 wrapper partial_call (3): " << fp0(3) << std::endl;
-/*
+
   // TWO arguments
   auto fp1 = make_curried(add2);
   std::cerr << "\nfp1 wrapper call (!fp1)(5,6): " << (!fp1)(5,6) << std::endl;
@@ -159,23 +161,23 @@ int main()
 
   // ===
   // FUNCTOR: std::vector
-  Vector<int> fa_1{1, 2, 3, 4, 5};
-  auto fb_1 = fmap(~fp2, fa_1);
+  Vector<int> f_va_1{1, 2, 3, 4, 5};
+  auto f_vb_1 = fmap(~fp2, f_va_1);
 
-  std::cout << "\nfmap(~fp2<2>, fa_1 = [1..5]) -> fb_1 = : ";
-  for (auto & b: fb_1)
+  std::cout << "\nfmap(~fp2<2>, f_va_1 = [1..5]) -> f_vb_1 = : ";
+  for (auto & b: f_vb_1)
   {
     std::cout << b << " : ";
   }
   std::cout << std::endl;
 
-  auto fa2b = fmap(~fp1, fa_1);
-  auto fb_2 = apply(fa2b, fa_1);
+  auto f_va2b = fmap(~fp1, f_va_1);
+  auto f_vb_2 = apply(f_va2b, f_va_1);
 
   size_t columns = 5;
-  std::cout << "\nfmap(~fp1, fa_1 = [1..5]) -> fa_2";
-  std::cout << "\napply(fa2b, fa_1 = [1..5]) -> fb_2 =\n : ";
-  for (auto & b: fb_2)
+  std::cout << "\nfmap(~fp1, f_va_1 = [1..5]) -> f_va2b";
+  std::cout << "\napply(fa2b, f_va_1 = [1..5]) -> f_vb_2 =\n : ";
+  for (auto & b: f_vb_2)
   {
     std::cout << b;
     if (columns == 1)
@@ -190,5 +192,29 @@ int main()
     }
   }
   std::cout << std::endl;
-*/
+
+  List<int> f_la_1{11, 12, 13, 14, 15};
+  auto f_la2b = fmap(~fp1, f_la_1);
+  auto f_lb_2 = apply(f_la2b, f_la_1);
+
+  columns = 5;
+  std::cout << "\nfmap(~fp1, f_la_1 = [1..5]) -> f_la_2";
+  std::cout << "\napply(fa2b, f_la_1 = [1..5]) -> f_lb_2 =\n : ";
+
+  for (auto & b: f_lb_2)
+    {
+      std::cout << b;
+      if (columns == 1)
+        {
+          std::cout << "\n : ";
+          columns = 5;
+        }
+      else
+        {
+          std::cout << " : ";
+          --columns;
+        }
+    }
+  std::cout << std::endl;
+
 }
