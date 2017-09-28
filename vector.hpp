@@ -11,11 +11,11 @@ namespace FunctionalCpp
   // local implementations / instatiations for STL containers
 
   // instance for std::vector
-  template <typename V>
+  template <class V>
   using Vector = std::vector<V, std::allocator<V>>;
 
-  template < typename Ret,
-             typename Arg >
+  template < class Ret,
+             class Arg >
   struct Functor<Function<Arg, Ret>, Vector<Arg>, Vector<Ret>>
   {
     static Vector<Ret> fmap(const Function<Arg, Ret> a2b,
@@ -33,8 +33,8 @@ namespace FunctionalCpp
   };
 
 
-  template < typename Ret,
-             typename Arg >
+  template < class Ret,
+             class Arg >
   struct Applicative<Vector<Function<Arg, Ret>>, Vector<Arg>, Vector<Ret>>
   {
     static Vector<Arg> apply(const Vector<Function<Arg, Ret>>& fa2b,

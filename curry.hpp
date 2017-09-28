@@ -14,18 +14,18 @@ namespace FunctionalCpp
   struct call_succeed {};
 
   // forward declaration
-  template <typename Ret, typename... FnArgs, typename... BoundArgs>
+  template <class Ret, class... FnArgs, class... BoundArgs>
   auto make_curried( Ret(f)(FnArgs...), BoundArgs&&... boundArgs );
 
-  template <typename Ret, typename... FnArgs, typename... BoundArgs>
+  template <class Ret, class... FnArgs, class... BoundArgs>
   auto make_curried( std::function<Ret(FnArgs...)> f, BoundArgs&&... boundArgs );
 
   // **************************************************
   // partial application function object - forward declaration
   template <
-    typename Tpl,
-    typename Ret,
-    typename... FnArgs >
+    class Tpl,
+    class Ret,
+    class... FnArgs >
   struct Partial
   {
   private:
@@ -88,20 +88,20 @@ namespace FunctionalCpp
     FnCurried fn_m;
 
     // dispacther function for correct numbers of arguments
-    template < typename... CompArgs >
+    template < class... CompArgs >
     Ret dispatch( call_succeed , CompArgs&&... compArgs ) const
     {
       return  (wrapper_m)( std::forward<CompArgs>(compArgs)... );
     }
 
     // dispatch function for incomplete set of arguments
-    template < typename... CompArgs >
+    template < class... CompArgs >
     auto dispatch( call_failed , CompArgs&&... compArgs ) const
     {
       return make_curried( (wrapper_m), std::forward<CompArgs>(compArgs)... );
     }
 
-    template < std::size_t... Ns , typename NewArg >
+    template < std::size_t... Ns , class NewArg >
     auto call( std::index_sequence<Ns...> , NewArg&& newArg )
     {
       Dispatcher condition{};
@@ -112,14 +112,14 @@ namespace FunctionalCpp
 
   }; // end Partial
 
-  template <typename Ret, typename... FnArgs, typename... BoundArgs>
+  template <class Ret, class... FnArgs, class... BoundArgs>
   auto make_curried( Ret(f)(FnArgs...), BoundArgs&&... boundArgs )
   {
     std::function<Ret(FnArgs...)>func = f;
     return make_curried(func, std::forward<BoundArgs>(boundArgs)...);
   }
 
-  template <typename Ret, typename... FnArgs, typename... BoundArgs>
+  template <class Ret, class... FnArgs, class... BoundArgs>
   auto make_curried( std::function<Ret(FnArgs...)> f, BoundArgs&&... boundArgs )
   {
     using BoundArgsTpl = std::tuple<typename std::remove_reference<BoundArgs>::type...>;

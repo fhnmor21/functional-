@@ -62,7 +62,7 @@ int main()
   auto fp0 = make_curried(sqr);
   std::cerr << "\nfp0 wrapper call (5): " << (!fp0)(5) << std::endl;
   std::cerr << "fp0 wrapper partial_call (3): " << fp0(3) << std::endl;
-
+/*
   // TWO arguments
   auto fp1 = make_curried(add2);
   std::cerr << "\nfp1 wrapper call (!fp1)(5,6): " << (!fp1)(5,6) << std::endl;
@@ -190,5 +190,5 @@ int main()
     }
   }
   std::cout << std::endl;
-
+*/
 }
