@@ -170,14 +170,14 @@ int main()
   std::cout << std::endl;
 
   auto fa2b = fmap(~fp1, fa_1);
-  //auto fb_2 = apply(fa2b, fa_1);
+  auto fb_2 = apply(fa2b, fa_1);
 
   std::cout << "\nfmap(~fp1, fa_1 = [1..5]) -> fa_2"  ;
   std::cout << "\napply(fa2b, fa_1 = [1..5]) -> fb_2 = : "  ;
-  // for (auto & b: fb_1)
-  // {
-  //   std::cout << b << " : ";
-  // }
+  for (auto & b: fb_2)
+  {
+    std::cout << b << " : ";
+  }
   std::cout << std::endl;
 
 }
