@@ -217,4 +217,29 @@ int main()
     }
   std::cout << std::endl;
 
+  /*
+  Dict<int> f_da_1{{"one",21}, {"two",22}, {"three",23}, {"four",24}, {"five",25}};
+  auto f_da2b = fmap(~fp1, f_da_1);
+  auto f_db_2 = apply(f_da2b, f_da_1);
+  columns = 5;
+  std::cout << "\nfmap(~fp1, f_da_1 = [1..5]) -> f_da_2";
+  std::cout << "\napply(fa2b, f_da_1 = [1..5]) -> f_db_2 =\n : ";
+
+  for (auto & b: f_db_2)
+    {
+      std::cout << b;
+      if (columns == 1)
+        {
+          std::cout << "\n : ";
+          columns = 5;
+        }
+      else
+        {
+          std::cout << " : ";
+          --columns;
+        }
+    }
+  std::cout << std::endl;
+  */
+
 }

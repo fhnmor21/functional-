@@ -10,7 +10,7 @@ namespace FunctionalCpp
   // ****************************************************************
   // local implementations / instatiations for STL containers
 
-  // instance for std::vector
+  // instance for std::map
   template <class V>
   using Dict = std::map<const std::string, V>; //, std::less<std::string>, std::allocator<std::pair<const std::string, V>>;
 

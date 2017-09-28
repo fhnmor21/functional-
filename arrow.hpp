@@ -55,6 +55,9 @@ namespace FunctionalCpp
   using Function = std::function<B(A)>;
   // struct Function : public std::function<B(A)>{};
 
+  template <class A, class B, class C>
+  using Function2 = std::function<C(A, B)>;
+
   namespace Impl_
   {
     // **************************************************
@@ -89,12 +92,46 @@ namespace FunctionalCpp
     public:
     using type = Ret;
     };
-    } // end namespace Impl_
+  } // end namespace Impl_
 
-    template < class Ret,
-               class... Args>
-    using Curried = Impl_::Nested<0, Ret, Args...>;
+  template < class Ret,
+             class... Args>
+  using Curried = Impl_::Nested<0, Ret, Args...>;
 
+
+  template < class A,
+             class B,
+             class C >
+  struct Cat
+  {
+    A id(A a)
+    {
+      return a;
+    }
+
+    Function<A, C> compose( Function<A, B> a2b, Function<B, C> b2c)
+    {
+      Function<A, C> a2c = [a2b, b2c] (A a)
+        {
+          return b2c(a2b(a));
+        };
+      return std::move(a2c);
+    }
+  };
+
+  template < class A >
+  A id (A a)
+  {
+    return Cat<A, void, void>::id(a);
+  }
+
+  template < class A,
+             class B,
+             class C >
+  Function<A, C> compose( Function<A, B> a2b, Function<B, C> b2c)
+  {
+    return Cat<A, B, C>::compose(a2b, b2c);
+  }
 
 } // end namespace FunctionalCpp
 
