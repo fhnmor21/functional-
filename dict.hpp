@@ -10,6 +10,21 @@ namespace FunctionalCpp
   // ****************************************************************
   // local implementations / instatiations for STL containers
 
+  /*
+  struct Atom
+  {
+    std::string data;
+    const bool operator <( const Atom& rhs ) const
+    {
+      return data < rhs.data;
+    }
+    const bool operator >( const Atom& rhs ) const
+    {
+      return data > rhs.data;
+    }
+  };
+  */
+
   class Atom
   {
   public:
@@ -20,24 +35,40 @@ namespace FunctionalCpp
       Number,
     };
 
-    // Atom() = delete;
-    // Atom(Atom&) = delete;    
+    Atom() = delete;
+    Atom(const Atom& other);
     explicit Atom(const std::string& s);
     explicit Atom(const char* c);
-    explicit Atom(long long i);
+    // explicit Atom(long long i);
     explicit Atom(double d);
 
-    const std::string& value() const { return data_m; }
-
-    bool operator()( const Atom& lhs, const Atom& rhs ) const
+    const Atom& operator =( const Atom& rhs )
     {
-      return lhs.data_m < rhs.data_m;
+      data_m = rhs.data_m;
+      option_m = rhs.option_m;
+      return *this;
     }
+
+    const bool operator <( const Atom& rhs ) const
+    {
+      return data_m < rhs.data_m;
+    }
+
+    const bool operator >( const Atom& rhs ) const
+    {
+      return data_m > rhs.data_m;
+    }
+
+    const std::string& value() const { return data_m; }
 
   private:
     atomTypes option_m;
     std::string data_m;
   };
+
+  Atom::Atom(const Atom &other)
+    : option_m(other.option_m)
+    , data_m(other.data_m) {}
 
   Atom::Atom(const std::string& s)
     : option_m(atomTypes::String)
@@ -47,11 +78,13 @@ namespace FunctionalCpp
     : option_m(atomTypes::String)
     , data_m(c) {}
 
+  /*
   Atom::Atom(long long i)
     : option_m(atomTypes::Integer)
   {
     data_m = std::to_string(i);
   }
+  */
 
   Atom::Atom(double d)
     : option_m(atomTypes::Number)
@@ -59,13 +92,31 @@ namespace FunctionalCpp
     data_m = std::to_string(d);
   }
 
+
   template <class V>
   struct ADict
   {
     std::map<const Atom, V> data;
+    const V& operator[](int k)
+    {
+      return data[Atom{static_cast<double>(k)}];
+    }
+    const V& operator[](double k)
+    {
+      return data[Atom{k}];
+    }
+    const V& operator[](const std::string& k)
+    {
+      return data[Atom{k}];
+    }
+    const V& operator[](const char* k)
+    {
+      return data[Atom{k}];
+    }
   };
 
-
+  // template <class V>
+  // using ADict = std::map<Atom, V>;
 
   // instance for std::map
   template <class V>

@@ -245,7 +245,13 @@ int main()
   std::cout << std::endl;
 
   ADict<int> f_da_1; //{{"one",21}, {"two",22}, {"three",23}, {"four",24}, {"five",25}};
-  f_da_1.data[Atom("one")] = 21;
+  f_da_1.data[Atom{"one"}] = 21;
+  f_da_1.data[Atom{"two"}] = 22;
+  f_da_1.data[Atom{3}] = 23;
+
+  std::cout << "ADict value @std::string(\"one\") = " << f_da_1[std::string("one")] << std::endl;
+  std::cout << "ADict value @\"two\" = " << f_da_1["two"] << std::endl;
+  std::cout << "ADict value @3 = " << f_da_1[3] << std::endl;
 
   /*
   // ===
