@@ -244,6 +244,9 @@ int main()
     }
   std::cout << std::endl;
 
+  ADict<int> f_da_1; //{{"one",21}, {"two",22}, {"three",23}, {"four",24}, {"five",25}};
+  f_da_1.data[Atom("one")] = 21;
+
   /*
   // ===
   // APPLICATTIVE: Dict
