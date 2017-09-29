@@ -50,6 +50,17 @@ auto rem = [](int a, int b)
   return (a % b);
 };
 
+float intTo2xFloat (int a)
+{
+  return static_cast<float>(2*a);
+}
+
+bool isEqTo4f (float b)
+{
+
+  return (b == 4.0f);
+}
+
 
 // testing
 int main()
@@ -160,11 +171,21 @@ int main()
   std::cout << "sf4 add wrapper partial_call <5>|(8)|(7): " << sf4__(7) << std::endl;
 
   // ===
-  // FUNCTOR: std::vector
+  // Category: Compose
+  auto is2i = compose(intTo2xFloat, isEqTo4f);
+  std::cout << "\nCompose: is2i = intTo2xFloat . isEqTo4f\n";
+  std::string strIs2iOf2 = ( is2i(2) )?"True":"False";
+  std::cout << "is2i(2) : " << strIs2iOf2 << std::endl;;
+  std::string strIs2iOf3 = ( is2i(3) )?"True":"False";
+  std::cout << "is2i(3) : " << strIs2iOf3 << std::endl;;
+
+  // ===
+  // FUNCTOR: Vector
   Vector<int> f_va_1{1, 2, 3, 4, 5};
   auto f_vb_1 = fmap(~fp2, f_va_1);
 
-  std::cout << "\nfmap(~fp2<2>, f_va_1 = [1..5]) -> f_vb_1 = : ";
+  std::cout << "\nFuntor fmap on Vector\n";
+  std::cout << "fmap(~fp2<2>, f_va_1 = [1..5]) -> f_vb_1 = : ";
   for (auto & b: f_vb_1)
   {
     std::cout << b << " : ";
@@ -174,8 +195,11 @@ int main()
   auto f_va2b = fmap(~fp1, f_va_1);
   auto f_vb_2 = apply(f_va2b, f_va_1);
 
+  // ===
+  // APPLICATTIVE: Vector
   size_t columns = 5;
-  std::cout << "\nfmap(~fp1, f_va_1 = [1..5]) -> f_va2b";
+  std::cout << "\nApplicative fmap & apply on Vector\n";
+  std::cout << "fmap(~fp1, f_va_1 = [1..5]) -> f_va2b";
   std::cout << "\napply(fa2b, f_va_1 = [1..5]) -> f_vb_2 =\n : ";
   for (auto & b: f_vb_2)
   {
@@ -193,12 +217,15 @@ int main()
   }
   std::cout << std::endl;
 
+  // ===
+  // APPLICATTIVE: List
   List<int> f_la_1{11, 12, 13, 14, 15};
   auto f_la2b = fmap(~fp1, f_la_1);
   auto f_lb_2 = apply(f_la2b, f_la_1);
 
   columns = 5;
-  std::cout << "\nfmap(~fp1, f_la_1 = [1..5]) -> f_la_2";
+  std::cout << "\nApplicative fmap & apply on List\n";
+  std::cout << "fmap(~fp1, f_la_1 = [1..5]) -> f_la_2";
   std::cout << "\napply(fa2b, f_la_1 = [1..5]) -> f_lb_2 =\n : ";
 
   for (auto & b: f_lb_2)
@@ -218,11 +245,15 @@ int main()
   std::cout << std::endl;
 
   /*
+  // ===
+  // APPLICATTIVE: Dict
   Dict<int> f_da_1{{"one",21}, {"two",22}, {"three",23}, {"four",24}, {"five",25}};
   auto f_da2b = fmap(~fp1, f_da_1);
   auto f_db_2 = apply(f_da2b, f_da_1);
+
   columns = 5;
-  std::cout << "\nfmap(~fp1, f_da_1 = [1..5]) -> f_da_2";
+  std::cout << "\nApplicative fmap & apply on Dict\n";
+  std::cout << "fmap(~fp1, f_da_1 = [1..5]) -> f_da_2";
   std::cout << "\napply(fa2b, f_da_1 = [1..5]) -> f_db_2 =\n : ";
 
   for (auto & b: f_db_2)

@@ -63,15 +63,15 @@ namespace FunctionalCpp
     // **************************************************
     // recursive std::function return type for partial applications
     template < size_t N,
-              class Ret,
-              class... Args >
+               class Ret,
+               class... Args >
     struct Nested
     {};
 
     template < size_t N,
-              class Ret,
-              class Arg,
-              class... Args >
+               class Ret,
+               class Arg,
+               class... Args >
     struct Nested< N, Ret, Arg, Args... > : Nested< N-1, Ret, Args... >
     {};
 
@@ -104,12 +104,12 @@ namespace FunctionalCpp
              class C >
   struct Cat
   {
-    A id(A a)
+    static A id(A a)
     {
       return a;
     }
 
-    Function<A, C> compose( Function<A, B> a2b, Function<B, C> b2c)
+    static Function<A, C> compose( Function<A, B> a2b, Function<B, C> b2c)
     {
       Function<A, C> a2c = [a2b, b2c] (A a)
         {
@@ -131,6 +131,17 @@ namespace FunctionalCpp
   Function<A, C> compose( Function<A, B> a2b, Function<B, C> b2c)
   {
     return Cat<A, B, C>::compose(a2b, b2c);
+  }
+
+  template < class A,
+             class B,
+             class C >
+  Function<A, C> compose( B(a2b)(A), C(b2c)(B) )
+  {
+    Function<A, B> a2b_ = a2b;
+    Function<B, C> b2c_ = b2c;
+    Function<A, C> a2c_ = Cat<A, B, C>::compose( a2b_, b2c_ );
+    return a2c_;
   }
 
 } // end namespace FunctionalCpp

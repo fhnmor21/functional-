@@ -115,7 +115,7 @@ namespace FunctionalCpp
   template <class Ret, class... FnArgs, class... BoundArgs>
   auto make_curried( Ret(f)(FnArgs...), BoundArgs&&... boundArgs )
   {
-    std::function<Ret(FnArgs...)>func = f;
+    std::function<Ret(FnArgs...)> func = f;
     return make_curried(func, std::forward<BoundArgs>(boundArgs)...);
   }
 
