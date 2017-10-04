@@ -244,6 +244,7 @@ int main()
     }
   std::cout << std::endl;
 
+  /*
   ADict<int> f_da_1; //{{"one",21}, {"two",22}, {"three",23}, {"four",24}, {"five",25}};
   f_da_1.data[Atom{"one"}] = 21;
   f_da_1.data[Atom{"two"}] = 22;
@@ -253,12 +254,12 @@ int main()
   std::cout << "ADict value @\"two\" = " << f_da_1["two"] << std::endl;
   std::cout << "ADict value @3 = " << f_da_1[3] << std::endl;
 
-  /*
+
   // ===
   // APPLICATTIVE: Dict
-  Dict<int> f_da_1{{"one",21}, {"two",22}, {"three",23}, {"four",24}, {"five",25}};
-  auto f_da2b = fmap(~fp1, f_da_1);
-  auto f_db_2 = apply(f_da2b, f_da_1);
+  Dict<int> f_da_2{{Atom{"one"},21}, {Atom{"two"},22}, {Atom{"three"},23}, {Atom{"four"},24}, {Atom{"five"},25}};
+  auto f_da2b = fmap(~fp3, f_da_2);
+  //auto f_db_2 = apply(f_da2b, f_da_1);
 
   columns = 5;
   std::cout << "\nApplicative fmap & apply on Dict\n";
@@ -281,5 +282,4 @@ int main()
     }
   std::cout << std::endl;
   */
-
 }

@@ -53,10 +53,19 @@ namespace FunctionalCpp
 {
   template <class A, class B>
   using Function = std::function<B(A)>;
-  // struct Function : public std::function<B(A)>{};
 
   template <class A, class B, class C>
   using Function2 = std::function<C(A, B)>;
+
+  // flip arguments
+  template <class A, class B, class C>
+  Function2<B, A, C> flip(Function2<A, B, C> ab2c)
+  {
+    Function2<B, A, C> ba2c = [ab2c] (B b, A a)
+    {
+      return ab2c(a, b);
+    };
+  }
 
   namespace Impl_
   {
@@ -99,6 +108,8 @@ namespace FunctionalCpp
   using Curried = Impl_::Nested<0, Ret, Args...>;
 
 
+  // ===
+  // Category static class
   template < class A,
              class B,
              class C >
@@ -143,6 +154,45 @@ namespace FunctionalCpp
     Function<A, C> a2c_ = Cat<A, B, C>::compose( a2b_, b2c_ );
     return a2c_;
   }
+
+
+  // ===
+  // Arrow static class
+  template < class A,
+             class B,
+             class C >
+  struct Arrow : Cat<A, B, C>
+  {
+    //first :: (a `arr` b) -> ((a, c) `arr` (b, c))
+    static std::tuple<B, C> first( Function<A, B> a2b,
+                                   const std::tuple<A, C>& ac )
+    {
+      return std::move(std::make_tuple<B, C>(a2b(std::get<0>(ac)), std::get<1>(ac)));
+    }
+  };
+
+  template < class A,
+             class B,
+             class C >
+  std::tuple<B, C> first( Function<A, B> a2b,
+                          const std::tuple<A, C>& ac )
+  {
+    return Arrow<A, B, C>::first(a2b, ac);
+  }
+
+  template < class A,
+             class B,
+             class C >
+  std::tuple<A, C> second( Function<B, C> b2c,
+                           const std::tuple<A, B>& ab)
+  {
+    std::tuple<B, A> ba = std::make_tuple<B, A>(std::get<1>(ab), std::get<0>(ab));
+    std::tuple<C, A> ca = Arrow<A, B, C>::first(b2c, ba);
+    std::tuple<A, C> ac = std::make_tuple<A, C>(std::get<1>(ca), std::get<0>(ca));
+    return std::move(ac);
+
+  }
+
 
 } // end namespace FunctionalCpp
 

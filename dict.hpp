@@ -25,6 +25,10 @@ namespace FunctionalCpp
   };
   */
 
+
+
+  // FIXME: remove the need to convert to string!!!
+  /// works for now. not high priority...
   class Atom
   {
   public:
