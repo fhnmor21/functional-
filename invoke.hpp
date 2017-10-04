@@ -20,13 +20,13 @@ namespace FunctionalCpp
       {
         return std::move(std::tuple< A2, A1, typename std::remove_reference<As>::type... >(a2, a1, as...));
       }
-      
+
       template <size_t ...S >
       static std::tuple<A2, A1, As...> swap_impl1(std::tuple<A1, A2, As...> from, std::index_sequence<S...> )
       {
         return Swapper<A1, A2, As...>::swap_impl2(std::get<S>(std::forward< std::tuple<A1, A2, As...> >(from))...);
       }
-      
+
     public:
       static std::tuple<A2, A1, As...>  swap(std::tuple<A1, A2, As...> from)
       {
@@ -34,7 +34,7 @@ namespace FunctionalCpp
         return Swapper<A1, A2, As...>::swap_impl1( from, std::make_index_sequence<tSize>() );
       }
     };
-    
+
     template<class A1, class A2, class... As>
     std::tuple<A2, A1, As...>  swap(std::tuple<A1, A2, As...> from)
     {

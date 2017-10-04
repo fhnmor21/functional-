@@ -1,11 +1,10 @@
 #include <cstddef>
 #include <iostream>
 
-//#include "curry.hpp"
 #include "vector.hpp"
 #include "list.hpp"
 #include "dict.hpp"
-
+#include "arrow_utils.hpp"
 
 using namespace FunctionalCpp;
 
@@ -59,6 +58,11 @@ bool isEqTo4f (float b)
 {
 
   return (b == 4.0f);
+}
+
+std::string log(const std::string& fst)
+{
+  return std::move("log: " + fst);
 }
 
 
@@ -178,6 +182,21 @@ int main()
   std::cout << "is2i(2) : " << strIs2iOf2 << std::endl;;
   std::string strIs2iOf3 = ( is2i(3) )?"True":"False";
   std::cout << "is2i(3) : " << strIs2iOf3 << std::endl;;
+
+
+  // ===
+  // Arrow
+  std::tuple<int, int> num_pair{10, 20};
+  auto new_nums = prod3(~fp3, ~fp2)(num_pair);
+  std::cout << "\nArrow prod3 on {10, 20}\n";
+  std::cout << "prod3(~fp3, ~fp2, {10, 20}): { " << std::get<0>(new_nums) << ", " << std::get<1>(new_nums) << " }\n";
+   /*
+  auto log_ = make_curried(log);
+  std::tuple<int, std::string> old_cxt{10,"test"};
+  auto new_cxt =  prod3(~fp3, ~log_, old_cxt);
+  std::cout << "\nArrow prod3 on {10, \"test\"}\n";
+  std::cout << "prod3(fp3, log, {10, \"test\"}): { " << std::get<0>(new_cxt) << ", " << std::get<1>(new_cxt) << " }\n";
+  */
 
   // ===
   // FUNCTOR: Vector

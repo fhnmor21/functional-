@@ -164,35 +164,16 @@ namespace FunctionalCpp
   struct Arrow : Cat<A, B, C>
   {
     //first :: (a `arr` b) -> ((a, c) `arr` (b, c))
-    static std::tuple<B, C> first( Function<A, B> a2b,
-                                   const std::tuple<A, C>& ac )
+    static Function< std::tuple<A, C>, std::tuple<B, C> >
+    first( Function<A, B> a2b )
     {
-      return std::move(std::make_tuple<B, C>(a2b(std::get<0>(ac)), std::get<1>(ac)));
+      Function< std::tuple<A, C>, std::tuple<B, C> > fst = [a2b](std::tuple<A, C>)
+      {
+        returnstd::move(std::make_tuple<B, C>(a2b(std::get<0>(ac)), std::get<1>(ac)));
+      };
+      return fst;
     }
   };
-
-  template < class A,
-             class B,
-             class C >
-  std::tuple<B, C> first( Function<A, B> a2b,
-                          const std::tuple<A, C>& ac )
-  {
-    return Arrow<A, B, C>::first(a2b, ac);
-  }
-
-  template < class A,
-             class B,
-             class C >
-  std::tuple<A, C> second( Function<B, C> b2c,
-                           const std::tuple<A, B>& ab)
-  {
-    std::tuple<B, A> ba = std::make_tuple<B, A>(std::get<1>(ab), std::get<0>(ab));
-    std::tuple<C, A> ca = Arrow<A, B, C>::first(b2c, ba);
-    std::tuple<A, C> ac = std::make_tuple<A, C>(std::get<1>(ca), std::get<0>(ca));
-    return std::move(ac);
-
-  }
-
 
 } // end namespace FunctionalCpp
 
