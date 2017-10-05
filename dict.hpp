@@ -128,9 +128,9 @@ namespace FunctionalCpp
 
   template < class Ret,
              class Arg >
-  struct Functor<Function<Arg, Ret>, Dict<Arg>, Dict<Ret>>
+  struct Functor<Function1<Arg, Ret>, Dict<Arg>, Dict<Ret>>
   {
-    static Dict<Ret> fmap(const Function<Arg, Ret> a2b,
+    static Dict<Ret> fmap(const Function1<Arg, Ret> a2b,
                           const Dict<Arg>& fa)
     {
       Dict<Ret> fb;
@@ -147,9 +147,9 @@ namespace FunctionalCpp
 
   template < class Ret,
              class Arg >
-  struct Applicative<Dict<Function<Arg, Ret>>, Dict<Arg>, Dict<Ret>>
+  struct Applicative<Dict<Function1<Arg, Ret>>, Dict<Arg>, Dict<Ret>>
   {
-    static Dict<Arg> apply(const Dict<Function<Arg, Ret>>& fa2b,
+    static Dict<Arg> apply(const Dict<Function1<Arg, Ret>>& fa2b,
                             const Dict<Arg>& fa)
     {
       Dict<Ret> fb;

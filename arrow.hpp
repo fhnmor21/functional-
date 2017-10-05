@@ -52,20 +52,10 @@ namespace std {
 namespace FunctionalCpp
 {
   template <class A, class B>
-  using Function = std::function<B(A)>;
+  using Function1 = std::function<B(A)>;
 
   template <class A, class B, class C>
   using Function2 = std::function<C(A, B)>;
-
-  // flip arguments
-  template <class A, class B, class C>
-  Function2<B, A, C> flip(Function2<A, B, C> ab2c)
-  {
-    Function2<B, A, C> ba2c = [ab2c] (B b, A a)
-    {
-      return ab2c(a, b);
-    };
-  }
 
   namespace Impl_
   {
@@ -92,7 +82,7 @@ namespace FunctionalCpp
     private:
     using R = typename Nested< 0, Ret, Args... >::type;
     public:
-    using type = Function<Arg, R>;
+    using type = Function1<Arg, R>;
     };
 
     template < class Ret >
@@ -109,37 +99,50 @@ namespace FunctionalCpp
 
 
   // ===
+  // flip arguments
+  template <class A, class B, class R>
+  Function2<B, A, R> flip(Function2<A, B, R> ab2r)
+  {
+    Function2<B, A, R> ba2r = [ab2r] (B b, A a)
+    {
+      return ab2r(a, b);
+    };
+    return std::move(ba2r);
+  }
+
+
+  // ===
+  // Id Function
+  template < class A >
+  A id(A a)
+  {
+    return a;
+  }
+
+
+  // ===
   // Category static class
   template < class A,
              class B,
              class C >
   struct Cat
   {
-    static A id(A a)
+    // (.) :: (b `arr` c) -> (a `arr` b) -> (a `arr` c)
+    static Function1<A, C> compose( Function1<B, C> b2c, Function1<A, B> a2b )
     {
-      return a;
-    }
-
-    static Function<A, C> compose( Function<A, B> a2b, Function<B, C> b2c)
-    {
-      Function<A, C> a2c = [a2b, b2c] (A a)
+      Function1<A, C> a2c = [b2c, a2b] (A a)
         {
-          return b2c(a2b(a));
+          return b2c( a2b(a) );
         };
       return std::move(a2c);
     }
   };
 
-  template < class A >
-  A id (A a)
-  {
-    return Cat<A, void, void>::id(a);
-  }
-
   template < class A,
              class B,
              class C >
-  Function<A, C> compose( Function<A, B> a2b, Function<B, C> b2c)
+  // (.) :: (b `arr` c) -> (a `arr` b) -> (a `arr` c)
+  Function1<A, C> compose( Function1<B, C> b2c, Function1<A, B> a2b )
   {
     return Cat<A, B, C>::compose(a2b, b2c);
   }
@@ -147,11 +150,12 @@ namespace FunctionalCpp
   template < class A,
              class B,
              class C >
-  Function<A, C> compose( B(a2b)(A), C(b2c)(B) )
+  // (.) :: (b `arr` c) -> (a `arr` b) -> (a `arr` c)
+  Function1<A, C> compose( C(b2c)(B), B(a2b)(A) )
   {
-    Function<A, B> a2b_ = a2b;
-    Function<B, C> b2c_ = b2c;
-    Function<A, C> a2c_ = Cat<A, B, C>::compose( a2b_, b2c_ );
+    Function1<A, B> a2b_ = a2b;
+    Function1<B, C> b2c_ = b2c;
+    Function1<A, C> a2c_ = Cat<A, B, C>::compose( b2c_, a2b_ );
     return a2c_;
   }
 
@@ -160,18 +164,23 @@ namespace FunctionalCpp
   // Arrow static class
   template < class A,
              class B,
-             class C >
-  struct Arrow : Cat<A, B, C>
+             class C,
+             class D >
+struct Arrow : Cat<A, B, C>
   {
-    //first :: (a `arr` b) -> ((a, c) `arr` (b, c))
-    static Function< std::tuple<A, C>, std::tuple<B, C> >
-    first( Function<A, B> a2b )
+    // (***) :: (a `arr` c) -> (b `arr` d) -> ((a, b) `arr` (c, d))
+    static Function1< std::tuple<A, B>, std::tuple<C, D> > prod3( Function1<A, C> a2c, Function1<B, D> b2d )
     {
-      Function< std::tuple<A, C>, std::tuple<B, C> > fst = [a2b](std::tuple<A, C> ac)
+      Function1< std::tuple<A, B>, std::tuple<C, D> > ppp = [a2c, b2d](std::tuple<A, B> ab)
       {
-        return std::move(std::make_tuple<B, C>(a2b(std::get<0>(ac)), std::get<1>(ac)));
+        return std::move(   std::make_tuple<C, D>
+                            (
+                              a2c(std::get<0>(ab)),
+                              b2d(std::get<1>(ab))
+                            )
+                        );
       };
-      return fst;
+      return ppp;
     }
   };
 

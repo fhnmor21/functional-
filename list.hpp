@@ -16,9 +16,9 @@ namespace FunctionalCpp
 
   template < class Ret,
              class Arg >
-  struct Functor<Function<Arg, Ret>, List<Arg>, List<Ret>>
+  struct Functor<Function1<Arg, Ret>, List<Arg>, List<Ret>>
   {
-    static List<Ret> fmap(const Function<Arg, Ret> a2b,
+    static List<Ret> fmap(const Function1<Arg, Ret> a2b,
                           const List<Arg>& fa)
     {
       List<Ret> fb;
@@ -35,9 +35,9 @@ namespace FunctionalCpp
 
   template < class Ret,
              class Arg >
-  struct Applicative<List<Function<Arg, Ret>>, List<Arg>, List<Ret>>
+  struct Applicative<List<Function1<Arg, Ret>>, List<Arg>, List<Ret>>
   {
-    static List<Arg> apply(const List<Function<Arg, Ret>>& fa2b,
+    static List<Arg> apply(const List<Function1<Arg, Ret>>& fa2b,
                             const List<Arg>& fa)
     {
       List<Ret> fb;

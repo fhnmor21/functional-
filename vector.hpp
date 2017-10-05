@@ -16,9 +16,9 @@ namespace FunctionalCpp
 
   template < class Ret,
              class Arg >
-  struct Functor<Function<Arg, Ret>, Vector<Arg>, Vector<Ret>>
+  struct Functor<Function1<Arg, Ret>, Vector<Arg>, Vector<Ret>>
   {
-    static Vector<Ret> fmap(const Function<Arg, Ret> a2b,
+    static Vector<Ret> fmap(const Function1<Arg, Ret> a2b,
                           const Vector<Arg>& fa)
     {
       Vector<Ret> fb;
@@ -35,9 +35,9 @@ namespace FunctionalCpp
 
   template < class Ret,
              class Arg >
-  struct Applicative<Vector<Function<Arg, Ret>>, Vector<Arg>, Vector<Ret>>
+  struct Applicative<Vector<Function1<Arg, Ret>>, Vector<Arg>, Vector<Ret>>
   {
-    static Vector<Arg> apply(const Vector<Function<Arg, Ret>>& fa2b,
+    static Vector<Arg> apply(const Vector<Function1<Arg, Ret>>& fa2b,
                             const Vector<Arg>& fa)
     {
       Vector<Ret> fb;

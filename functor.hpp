@@ -23,10 +23,10 @@ namespace FunctionalCpp
   template < template<class...> class F,
              class Ret,
              class Arg >
-  F<Ret> fmap(const Function<Arg, Ret> a2b,
+  F<Ret> fmap(const Function1<Arg, Ret> a2b,
               const F<Arg>& fa)
   {
-    return Functor<Function<Arg, Ret>, F<Arg>, F<Ret>>::fmap(a2b, fa);
+    return Functor<Function1<Arg, Ret>, F<Arg>, F<Ret>>::fmap(a2b, fa);
   }
 
 
@@ -45,10 +45,10 @@ namespace FunctionalCpp
   template < template <class...> class F,
              class Ret,
              class Arg >
-  F<Ret> apply(const F<Function<Arg, Ret>>& fa2b,
+  F<Ret> apply(const F<Function1<Arg, Ret>>& fa2b,
                const F<Arg>& fa)
   {
-    return Applicative<F<Function<Arg,Ret>>, F<Arg>, F<Ret>>::apply(fa2b, fa);
+    return Applicative<F<Function1<Arg,Ret>>, F<Arg>, F<Ret>>::apply(fa2b, fa);
   }
 
 } // end namespace FunctionalCpp

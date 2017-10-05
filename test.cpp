@@ -176,7 +176,7 @@ int main()
 
   // ===
   // Category: Compose
-  auto is2i = compose(intTo2xFloat, isEqTo4f);
+  auto is2i = compose(isEqTo4f, intTo2xFloat);
   std::cout << "\nCompose: is2i = intTo2xFloat . isEqTo4f\n";
   std::string strIs2iOf2 = ( is2i(2) )?"True":"False";
   std::cout << "is2i(2) : " << strIs2iOf2 << std::endl;;
@@ -188,21 +188,29 @@ int main()
   // Arrow
   std::tuple<int, int> num_args{10, 20};
 
+  auto ppp_nums = prod3(~fp3, ~fp2)(num_args);
+  std::cout << "\nArrow prod3 on {10, 20}\n";
+  std::cout << "prod3(~fp3, ~fp2)({10, 20}): { " << std::get<0>(ppp_nums) << ", " << std::get<1>(ppp_nums) << " }\n";
+
+  auto aaa_nums = and3(~fp3, ~fp2)(50);
+  std::cout << "\nArrow and3 on 50\n";
+  std::cout << "and3(~fp3, ~fp2)(50): { " << std::get<0>(aaa_nums) << ", " << std::get<1>(aaa_nums) << " }\n";
+
   auto first_fp3 = first(~fp3);
   auto fst_nums  = first_fp3(num_args);
   std::cout << "\nArrow first from fp3\n";
   std::cout << "first(~fp3)({10, 20}): { " << std::get<0>(fst_nums) << ", " << std::get<1>(fst_nums) << " }\n";
-  /*
-  auto new_nums = prod3(~fp3, ~fp2)(num_args);
-  std::cout << "\nArrow prod3 on {10, 20}\n";
-  std::cout << "prod3(~fp3, ~fp2, {10, 20}): { " << std::get<0>(new_nums) << ", " << std::get<1>(new_nums) << " }\n";
+
+  auto second_fp3 = second(~fp3);
+  auto snd_nums  = second_fp3(num_args);
+  std::cout << "\nArrow first from fp3\n";
+  std::cout << "second(~fp3)({10, 20}): { " << std::get<0>(snd_nums) << ", " << std::get<1>(snd_nums) << " }\n";
 
   auto log_ = make_curried(log);
   std::tuple<int, std::string> old_cxt{10,"test"};
-  auto new_cxt =  prod3(~fp3, ~log_, old_cxt);
+  auto new_cxt =  prod3(~fp3, ~log_)(old_cxt);
   std::cout << "\nArrow prod3 on {10, \"test\"}\n";
-  std::cout << "prod3(fp3, log, {10, \"test\"}): { " << std::get<0>(new_cxt) << ", " << std::get<1>(new_cxt) << " }\n";
-  */
+  std::cout << "prod3(fp3, log)({10, \"test\"}): { " << std::get<0>(new_cxt) << ", \"" << std::get<1>(new_cxt) << "\" }\n";
 
   // ===
   // FUNCTOR: Vector
