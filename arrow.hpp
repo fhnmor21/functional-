@@ -57,6 +57,14 @@ namespace FunctionalCpp
   template <class A, class B, class C>
   using Function2 = std::function<C(A, B)>;
 
+  template < template <typename> class F, class Ret, class Arg, class... Args>
+  auto operator ~( Ret(f_)(Arg, Args...) )
+  {
+    std::function<Ret(Arg, Args...)> funcN_ = f_;
+    return std::move(funcN_);
+  }
+
+
   namespace Impl_
   {
     // **************************************************
