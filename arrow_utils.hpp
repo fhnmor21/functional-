@@ -8,8 +8,7 @@ namespace FunctionalCpp
 {
   // (***) :: (a `arr` c) -> (b `arr` d) -> ((a, b) `arr` (c, d))
   template < class A, class B, class C, class D >
-  Function1< std::tuple< A, B >, std::tuple< C, D > > prod3(Function1< A, C > a2c,
-                                                            Function1< B, D > b2d)
+  Function1< Tuple< A, B >, Tuple< C, D > > prod3(Function1< A, C > a2c, Function1< B, D > b2d)
   {
     return Arrow< A, B, C, D >::prod3(a2c, b2d);
   }
@@ -24,10 +23,10 @@ namespace FunctionalCpp
 
   // (&&&) :: (a `arr` c) -> (a `arr` d) -> (a `arr` (c, d))
   template < class A, class C, class D >
-  Function1< A, std::tuple< C, D > > and3(Function1< A, C > a2c, Function1< A, D > a2d)
+  Function1< A, Tuple< C, D > > and3(Function1< A, C > a2c, Function1< A, D > a2d)
   {
-    Function1< A, std::tuple< C, D > > a2cd = [a2c, a2d](A a) {
-      std::tuple< A, A > aa{a, a};
+    Function1< A, Tuple< C, D > > a2cd = [a2c, a2d](A a) {
+      Tuple< A, A > aa{a, a};
       return Arrow< A, A, C, D >::prod3(a2c, a2d)(aa);
     };
     return std::move(a2cd);
@@ -53,9 +52,9 @@ namespace FunctionalCpp
     }
 
     template < class B >
-    std::tuple< C, B > operator()(std::tuple< A, B > ab)
+    Tuple< C, B > operator()(Tuple< A, B > ab)
     {
-      std::tuple< C, B > cb = Arrow< A, B, C, B >::prod3(a2c_m, id< B >)(ab);
+      Tuple< C, B > cb = Arrow< A, B, C, B >::prod3(a2c_m, id< B >)(ab);
       return std::move(cb);
     }
 
@@ -89,9 +88,9 @@ namespace FunctionalCpp
     }
 
     template < class B >
-    std::tuple< B, D > operator()(std::tuple< B, C > bc)
+    Tuple< B, D > operator()(Tuple< B, C > bc)
     {
-      std::tuple< B, D > bd = Arrow< B, C, B, D >::prod3(id< B >, c2d_m)(bc);
+      Tuple< B, D > bd = Arrow< B, C, B, D >::prod3(id< B >, c2d_m)(bc);
       return std::move(bd);
     }
 

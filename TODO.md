@@ -2,11 +2,11 @@
 
 ## Required
 
-- Prelude
 - Functor utils
+- Prelude
+- Monoid
 - Either
 - Maybe
-- Monoid
 - Monad
 - Kleisly
 - Array Instances
@@ -14,7 +14,7 @@
 - Traversable
 - Zipable
 - Monad Trasnformers
-- Pattern matching
+- Pattern Matching
 
 ## Improvements
 

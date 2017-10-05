@@ -43,10 +43,10 @@ namespace FunctionalCpp
   struct Arrow : Cat< A, B, C >
   {
     // (***) :: (a `arr` c) -> (b `arr` d) -> ((a, b) `arr` (c, d))
-    static Function1< std::tuple< A, B >, std::tuple< C, D > > prod3(Function1< A, C > a2c,
-                                                                     Function1< B, D > b2d)
+    static Function1< Tuple< A, B >, Tuple< C, D > > prod3(Function1< A, C > a2c,
+                                                           Function1< B, D > b2d)
     {
-      Function1< std::tuple< A, B >, std::tuple< C, D > > ppp = [a2c, b2d](std::tuple< A, B > ab) {
+      Function1< Tuple< A, B >, Tuple< C, D > > ppp = [a2c, b2d](Tuple< A, B > ab) {
         return std::move(std::make_tuple< C, D >(a2c(std::get< 0 >(ab)), b2d(std::get< 1 >(ab))));
       };
       return ppp;

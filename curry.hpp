@@ -109,7 +109,7 @@ namespace FunctionalCpp
   template < class Ret, class... FnArgs, class... BoundArgs >
   auto make_curried(FunctionN< Ret, FnArgs... > f, BoundArgs&&... boundArgs)
   {
-    using BoundArgsTpl = std::tuple< typename std::remove_reference< BoundArgs >::type... >;
+    using BoundArgsTpl = Tuple< typename std::remove_reference< BoundArgs >::type... >;
     BoundArgsTpl argsTpl(boundArgs...);
     return Partial< BoundArgsTpl, Ret, FnArgs... >(f, argsTpl);
   }
