@@ -57,8 +57,8 @@ namespace FunctionalCpp
   template < class A, class B, class C >
   using Function2 = std::function< C(A, B) >;
 
-  template < class A, class B, class C, class... Ns >
-  using FunctionN = std::function< C(A, B, Ns...) >;
+  template < class Ret, class... Ns >
+  using FunctionN = std::function< Ret(Ns...) >;
 
   // ===
   // flip arguments
@@ -80,7 +80,7 @@ namespace FunctionalCpp
   namespace Impl_
   {
     // **************************************************
-    // recursive std::function return type for partial applications
+    // recursive function return type for partial applications
     template < size_t N, class Ret, class... Args >
     struct Nested
     {

@@ -22,7 +22,7 @@ namespace FunctionalCpp
   auto make_curried(Ret(f)(FnArgs...), BoundArgs&&... boundArgs);
 
   template < class Ret, class... FnArgs, class... BoundArgs >
-  auto make_curried(std::function< Ret(FnArgs...) > f, BoundArgs&&... boundArgs);
+  auto make_curried(FunctionN< Ret, FnArgs... > f, BoundArgs&&... boundArgs);
 
   // **************************************************
   // partial application function object - forward declaration
@@ -37,7 +37,7 @@ namespace FunctionalCpp
     static constexpr bool lastRec = (0 == (numOfArgs - tSize - 1));
     // Types
     using Dispatcher = typename std::conditional< lastRec, call_succeed, call_failed >::type;
-    using FnWrapper = std::function< Ret(FnArgs...) >;
+    using FnWrapper = FunctionN< Ret, FnArgs... >;
     using NewArg = typename get_type< tSize, FnArgs... >::type;
     using OpNested = typename Impl_::Nested< tSize + 1, Ret, FnArgs... >::type;
     using FnCurried = typename Impl_::Nested< tSize, Ret, FnArgs... >::type;
@@ -48,7 +48,7 @@ namespace FunctionalCpp
         : wrapper_m(f)
         , boundArgs_m(boundArgs)
     {
-      fn_m = (std::function< OpNested(NewArg) >(*this));
+      fn_m = (Function1< NewArg, OpNested >(*this));
     }
 
     // returns nestleed function - curried
@@ -102,12 +102,12 @@ namespace FunctionalCpp
   template < class Ret, class... FnArgs, class... BoundArgs >
   auto make_curried(Ret(f)(FnArgs...), BoundArgs&&... boundArgs)
   {
-    std::function< Ret(FnArgs...) > func = f;
+    FunctionN< Ret, FnArgs... > func = f;
     return make_curried(func, std::forward< BoundArgs >(boundArgs)...);
   }
 
   template < class Ret, class... FnArgs, class... BoundArgs >
-  auto make_curried(std::function< Ret(FnArgs...) > f, BoundArgs&&... boundArgs)
+  auto make_curried(FunctionN< Ret, FnArgs... > f, BoundArgs&&... boundArgs)
   {
     using BoundArgsTpl = std::tuple< typename std::remove_reference< BoundArgs >::type... >;
     BoundArgsTpl argsTpl(boundArgs...);
