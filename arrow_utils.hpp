@@ -23,10 +23,10 @@ namespace FunctionalCpp
   Function< std::tuple<B, C>, std::tuple<B, D> >
   second( Function<C, D> c2d )
   {
-    Function< std::tuple<B, C>, std::tuple<B, D> > snd = [c2d](std::tuple<B, C>)
+    Function< std::tuple<B, C>, std::tuple<B, D> > snd = [c2d](std::tuple<B, C> bc)
     {
       return Tuple::swap(first(c2d)(Tuple::swap(bc)));
-    }
+    };
     return snd;
   }
 

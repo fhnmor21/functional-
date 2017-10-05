@@ -167,9 +167,9 @@ namespace FunctionalCpp
     static Function< std::tuple<A, C>, std::tuple<B, C> >
     first( Function<A, B> a2b )
     {
-      Function< std::tuple<A, C>, std::tuple<B, C> > fst = [a2b](std::tuple<A, C>)
+      Function< std::tuple<A, C>, std::tuple<B, C> > fst = [a2b](std::tuple<A, C> ac)
       {
-        returnstd::move(std::make_tuple<B, C>(a2b(std::get<0>(ac)), std::get<1>(ac)));
+        return std::move(std::make_tuple<B, C>(a2b(std::get<0>(ac)), std::get<1>(ac)));
       };
       return fst;
     }

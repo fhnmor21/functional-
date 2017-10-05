@@ -186,11 +186,17 @@ int main()
 
   // ===
   // Arrow
-  std::tuple<int, int> num_pair{10, 20};
-  auto new_nums = prod3(~fp3, ~fp2)(num_pair);
+  std::tuple<int, int> num_args{10, 20};
+
+  auto first_fp3 = first(~fp3);
+  auto fst_nums  = first_fp3(num_args);
+  std::cout << "\nArrow first from fp3\n";
+  std::cout << "first(~fp3)({10, 20}): { " << std::get<0>(fst_nums) << ", " << std::get<1>(fst_nums) << " }\n";
+  /*
+  auto new_nums = prod3(~fp3, ~fp2)(num_args);
   std::cout << "\nArrow prod3 on {10, 20}\n";
   std::cout << "prod3(~fp3, ~fp2, {10, 20}): { " << std::get<0>(new_nums) << ", " << std::get<1>(new_nums) << " }\n";
-   /*
+
   auto log_ = make_curried(log);
   std::tuple<int, std::string> old_cxt{10,"test"};
   auto new_cxt =  prod3(~fp3, ~log_, old_cxt);
