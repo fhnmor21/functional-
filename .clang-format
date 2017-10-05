@@ -21,4 +21,5 @@ BreakConstructorInitializersBeforeComma: true
 BinPackArguments: false
 BinPackParameters: false
 DisableFormat: false
+NamespaceIndentation: All
 ...

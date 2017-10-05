@@ -1,8 +1,8 @@
 #ifndef DICT_HPP
 #define DICT_HPP
 
-#include <map>
 #include "functor.hpp"
+#include <map>
 
 namespace FunctionalCpp
 {
@@ -25,8 +25,6 @@ namespace FunctionalCpp
   };
   */
 
-
-
   // FIXME: remove the need to convert to string!!!
   /// works for now. not high priority...
   class Atom
@@ -46,22 +44,16 @@ namespace FunctionalCpp
     // explicit Atom(long long i);
     explicit Atom(double d);
 
-    const Atom& operator =( const Atom& rhs )
+    const Atom& operator=(const Atom& rhs)
     {
       data_m = rhs.data_m;
       option_m = rhs.option_m;
       return *this;
     }
 
-    const bool operator <( const Atom& rhs ) const
-    {
-      return data_m < rhs.data_m;
-    }
+    const bool operator<(const Atom& rhs) const { return data_m < rhs.data_m; }
 
-    const bool operator >( const Atom& rhs ) const
-    {
-      return data_m > rhs.data_m;
-    }
+    const bool operator>(const Atom& rhs) const { return data_m > rhs.data_m; }
 
     const std::string& value() const { return data_m; }
 
@@ -70,17 +62,23 @@ namespace FunctionalCpp
     std::string data_m;
   };
 
-  Atom::Atom(const Atom &other)
-    : option_m(other.option_m)
-    , data_m(other.data_m) {}
+  Atom::Atom(const Atom& other)
+      : option_m(other.option_m)
+      , data_m(other.data_m)
+  {
+  }
 
   Atom::Atom(const std::string& s)
-    : option_m(atomTypes::String)
-    , data_m(s) {}
+      : option_m(atomTypes::String)
+      , data_m(s)
+  {
+  }
 
   Atom::Atom(const char* c)
-    : option_m(atomTypes::String)
-    , data_m(c) {}
+      : option_m(atomTypes::String)
+      , data_m(c)
+  {
+  }
 
   /*
   Atom::Atom(long long i)
@@ -91,51 +89,38 @@ namespace FunctionalCpp
   */
 
   Atom::Atom(double d)
-    : option_m(atomTypes::Number)
+      : option_m(atomTypes::Number)
   {
     data_m = std::to_string(d);
   }
 
-
-  template <class V>
+  template < class V >
   struct ADict
   {
-    std::map<const Atom, V> data;
-    const V& operator[](int k)
-    {
-      return data[Atom{static_cast<double>(k)}];
-    }
-    const V& operator[](double k)
-    {
-      return data[Atom{k}];
-    }
-    const V& operator[](const std::string& k)
-    {
-      return data[Atom{k}];
-    }
-    const V& operator[](const char* k)
-    {
-      return data[Atom{k}];
-    }
+    std::map< const Atom, V > data;
+    const V& operator[](int k) { return data[Atom{static_cast< double >(k)}]; }
+    const V& operator[](double k) { return data[Atom{k}]; }
+    const V& operator[](const std::string& k) { return data[Atom{k}]; }
+    const V& operator[](const char* k) { return data[Atom{k}]; }
   };
 
   // template <class V>
   // using ADict = std::map<Atom, V>;
 
   // instance for std::map
-  template <class V>
-  using Dict = std::map<const std::string, V>; //, std::less<std::string>, std::allocator<std::pair<const std::string, V>>;
+  template < class V >
+  using Dict = std::map< const std::string,
+                         V >; //, std::less<std::string>,
+                              // std::allocator<std::pair<const std::string, V>>;
 
-  template < class Ret,
-             class Arg >
-  struct Functor<Function1<Arg, Ret>, Dict<Arg>, Dict<Ret>>
+  template < class Ret, class Arg >
+  struct Functor< Function1< Arg, Ret >, Dict< Arg >, Dict< Ret > >
   {
-    static Dict<Ret> fmap(const Function1<Arg, Ret> a2b,
-                          const Dict<Arg>& fa)
+    static Dict< Ret > fmap(const Function1< Arg, Ret > a2b, const Dict< Arg >& fa)
     {
-      Dict<Ret> fb;
+      Dict< Ret > fb;
 
-      for (auto& oldVal: fa)
+      for(auto& oldVal : fa)
       {
         auto newVal = a2b(oldVal);
         fb.push_back(newVal);
@@ -144,19 +129,16 @@ namespace FunctionalCpp
     }
   };
 
-
-  template < class Ret,
-             class Arg >
-  struct Applicative<Dict<Function1<Arg, Ret>>, Dict<Arg>, Dict<Ret>>
+  template < class Ret, class Arg >
+  struct Applicative< Dict< Function1< Arg, Ret > >, Dict< Arg >, Dict< Ret > >
   {
-    static Dict<Arg> apply(const Dict<Function1<Arg, Ret>>& fa2b,
-                            const Dict<Arg>& fa)
+    static Dict< Arg > apply(const Dict< Function1< Arg, Ret > >& fa2b, const Dict< Arg >& fa)
     {
-      Dict<Ret> fb;
+      Dict< Ret > fb;
 
       for(auto& a2b : fa2b)
       {
-        for (auto& oldVal: fa)
+        for(auto& oldVal : fa)
         {
           auto newVal = a2b(oldVal);
           fb.push_back(newVal);
