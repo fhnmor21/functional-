@@ -3,27 +3,28 @@
 ## Required
 
 - Functor utils
-- Prelude
-- Monoid
 - Either
 - Maybe
-- Monad
-- Kleisly
-- Array Instances
 - Foldable
 - Traversable
 - Zipable
-- Monad Trasnformers
+- Monoid
+- Prelude
+- Monad
+- Kleisly
+- Array Instances
 - Pattern Matching
+- Monad Trasnformers
 
 ## Improvements
 
+- More functionallity to type_utils
 - Better function types and currying
 - Parametrized named operators
-- More functionallity to type_utils
 
-## Nice to Have
+## For the Future
 
+- ProFunctor
 - ArrowChoice
 - Alternative
 - MonadPlus
