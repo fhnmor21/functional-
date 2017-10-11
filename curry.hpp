@@ -19,10 +19,10 @@ namespace FunctionalCpp
 
   // forward declaration
   template < class Ret, class... FnArgs, class... BoundArgs >
-  auto make_curried(Ret(f)(FnArgs...), BoundArgs&&... boundArgs);
+  auto curry(Ret(f)(FnArgs...), BoundArgs&&... boundArgs);
 
   template < class Ret, class... FnArgs, class... BoundArgs >
-  auto make_curried(FunctionN< Ret, FnArgs... > f, BoundArgs&&... boundArgs);
+  auto curry(FunctionN< Ret, FnArgs... > f, BoundArgs&&... boundArgs);
 
   // **************************************************
   // partial application function object - forward declaration
@@ -87,7 +87,7 @@ namespace FunctionalCpp
     template < class... CompArgs >
     auto dispatch(call_failed, CompArgs&&... compArgs) const
     {
-      return make_curried((wrapper_m), std::forward< CompArgs >(compArgs)...);
+      return curry((wrapper_m), std::forward< CompArgs >(compArgs)...);
     }
 
     template < std::size_t... Ns, class NewArg >
@@ -100,18 +100,28 @@ namespace FunctionalCpp
   }; // end Partial
 
   template < class Ret, class... FnArgs, class... BoundArgs >
-  auto make_curried(Ret(f)(FnArgs...), BoundArgs&&... boundArgs)
+  auto curry(Ret(f)(FnArgs...), BoundArgs&&... boundArgs)
   {
     FunctionN< Ret, FnArgs... > func = f;
-    return make_curried(func, std::forward< BoundArgs >(boundArgs)...);
+    return curry(func, std::forward< BoundArgs >(boundArgs)...);
   }
 
   template < class Ret, class... FnArgs, class... BoundArgs >
-  auto make_curried(FunctionN< Ret, FnArgs... > f, BoundArgs&&... boundArgs)
+  auto curry(FunctionN< Ret, FnArgs... > f, BoundArgs&&... boundArgs)
   {
     using BoundArgsTpl = Tuple< typename std::remove_reference< BoundArgs >::type... >;
     BoundArgsTpl argsTpl(boundArgs...);
     return Partial< BoundArgsTpl, Ret, FnArgs... >(f, argsTpl);
+  }
+
+  template <class Ret, class Arg1, class Arg2>
+  Function2<Arg1, Arg2, Ret> uncurry( Function1< Arg1, Function1<Arg2, Ret> > f1 )
+  {
+    Function2<Arg1, Arg2, Ret> f2 = [f1] (Arg1 a1, Arg2 a2)
+      {
+        return f1(a1)(a2);
+      };
+    return std::move(f2);
   }
 
 } // end nasmespace FunctionalCpp
