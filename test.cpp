@@ -64,6 +64,7 @@ int main()
 
   // ===
   auto args3 = Tuple< int, int, int >(2, 4, 8);
+
   // THREE arguments + binding
   auto fp3 = curry(add3, 2, 1);
   std::cerr << "\nfp3 wrapper call (!fp3)(5,6,7): " << (!fp3)(5, 6, 7) << std::endl;
@@ -266,6 +267,7 @@ int main()
     }
   }
   std::cout << std::endl;
+
 
   /*
   ADict<int> f_da_1; //{{"one",21}, {"two",22}, {"three",23}, {"four",24}, {"five",25}};

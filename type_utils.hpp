@@ -83,7 +83,10 @@ namespace FunctionalCpp
 
   ///
   // from a pack of varidic type create a type list
-  struct type_empty_list{};
+  struct type_empty_list
+  {
+    constexpr static size_t size = 0;
+  };
 
   template <class A1, class... As>
   struct type_list
@@ -112,38 +115,37 @@ namespace FunctionalCpp
   };
 
   ///
-  // drop remove the firn N elements from a type list
-  namespace Impl_
-  {
-    template <size_t N, class TypeList>
-    struct drop_types_
-    {
-      using list = typename drop_types_<N-1, typename TypeList::tail>::list;
-    };
+  // drop remove the first N elements from a type list
 
-    template <class TypeList>
-    struct drop_types_<1,TypeList>
-    {
-      using list = typename TypeList::tail;
-    };
-  }
   template <size_t N, class TypeList>
   struct drop_types
   {
-    using head = typename Impl_::drop_types_<N, TypeList>::head;
-    using tail = typename Impl_::drop_types_<N, TypeList>::tail;
-    using size = typename Impl_::drop_types_<N, TypeList>::size;
+
+    using list = typename drop_types<N-1, typename TypeList::tail>::list;
+    using head = typename list::head;
+    using tail = typename list::tail;
+    constexpr static size_t size = list::size;
   };
+
+  template <class TypeList>
+  struct drop_types<0, TypeList>
+  {
+    using list = TypeList;
+    using head = typename TypeList::head;
+    using tail = typename TypeList::tail;
+    constexpr static size_t size = TypeList::size;
+  };
+
 
   ///
   // take the N first elements from a type list
   template <size_t N, class TypeList>
   struct take_types
   {
+    using list = TypeList;
     using head = typename TypeList::head;
     using tail = typename take_types<N - 1, typename TypeList::tail>::list;
     constexpr static size_t size = N;
-    using list = TypeList;
   };
 
   template <class TypeList>
