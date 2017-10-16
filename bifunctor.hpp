@@ -11,7 +11,7 @@ namespace FunctionalCpp
   template < class ArrowA2C, class ArrowB2D, class FunctorOf_AB, class FunctorOf_CD >
   struct BiFunctor
   {
-    // bimap :: (a -> c) -> (b -> d) f a b -> f b c
+    // bimap :: (a -> c) -> (b -> d) f a b -> f c d
     static FunctorOf_CD bimap(const ArrowA2C a2c, const ArrowB2D b2d, const FunctorOf_AB& fab);
   };
 } // end namespace FunctionalCpp

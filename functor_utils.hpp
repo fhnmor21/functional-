@@ -4,6 +4,8 @@
 #include "curry.hpp"
 #include "functor.hpp"
 #include "bifunctor.hpp"
+#include "contrafunctor.hpp"
+#include "profunctor.hpp"
 #include "applicative.hpp"
 
 namespace FunctionalCpp
@@ -16,13 +18,25 @@ namespace FunctionalCpp
     return Functor< Function1< Arg, Ret >, F< Arg >, F< Ret > >::fmap(a2b, fa);
   }
 
-  // bimap :: (a -> c) -> (b -> d) f a b -> f b c
+  // contramap :: (b -> a) -> f a -> f b
+  template < template < class... > class F, class Ret, class Arg >
+  F< Ret > contramap(const Function1< Ret, Arg > a2b, const F< Arg >& fa)
+  {
+    return ContraFunctor< Function1< Ret, Arg >, F< Arg >, F< Ret > >::contramap(a2b, fa);
+  }
+
+  // bimap :: (a -> c) -> (b -> d) f a b -> f c d
   template < template < class... > class F, class Ret1, class Arg1, class Ret2, class Arg2 >
   F< Ret1, Ret2 > bimap(const Function1< Arg1, Ret1 > a2c, const Function1< Arg2, Ret2 > b2d, const F< Arg1, Arg2 >& fab)
   {
-    //    template < class ArrowA2C, class ArrowB2D, class FunctorOf_AB, class FunctorOf_CD >
-    //    static FunctorOf_CD bimap(const ArrowA2C a2c, const ArrowB2D b2d, const FunctorOf_AB& fab);
     return BiFunctor< Function1< Arg1, Ret1 >, Function1< Arg2, Ret2 >, F< Arg1, Arg2 >, F< Ret1, Ret2 > >::bimap(a2c, b2d, fab);
+  }
+
+  // promap :: (c -> a) -> (b -> d) f a b -> f c d
+  template < template < class... > class F, class Ret1, class Arg1, class Ret2, class Arg2 >
+  F< Ret1, Ret2 > promap(const Function1< Ret1, Arg1 > c2a, const Function1< Arg2, Ret2 > b2d, const F< Arg1, Arg2 >& fab)
+  {
+    return ProFunctor< Function1< Ret1, Arg1 >, Function1< Arg2, Ret2 >, F< Arg1, Arg2 >, F< Ret1, Ret2 > >::promap(c2a, b2d, fab);
   }
 
   // apply :: f (a -> b) -> f a -> f b
@@ -35,6 +49,7 @@ namespace FunctionalCpp
   // when :: Applicative f => Bool -> f () -> f ()
 
   // unless :: Applicative f => Bool -> f () -> f ()
+
 
 } // end namespace FunctionalCpp
 
