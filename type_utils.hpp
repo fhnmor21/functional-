@@ -105,6 +105,26 @@ namespace FunctionalCpp
   };
 
   ///
+  // apppend a type to a type list
+  template <class Append, class TypeList, size_t N = TypeList::size>
+  struct append_type
+  {
+    using list = typename append_type<Append, typename TypeList::tail, N-1>::list;
+    using head = typename list::head;
+    using tail = typename list::tail;
+    constexpr static size_t size = 1+ TypeList::size;
+  };
+
+  template <class Append, class TypeList>
+  struct append_type<Append, TypeList, 1>
+  {
+    using list = TypeList;
+    using head = typename TypeList::head;
+    using tail = type_list<Append>;
+    constexpr static size_t size = 1+ TypeList::size;
+  };
+
+  ///
   // prepend a type to a type list
   template <class Prepend, class TypeList>
   struct prepend_type: type_list<Prepend>
@@ -120,7 +140,7 @@ namespace FunctionalCpp
   template <size_t N, class TypeList>
   struct drop_types
   {
-
+    static_assert(N < TypeList::size, "drop_types<N, TypeList>: Dropping more types than the size of the list.");
     using list = typename drop_types<N-1, typename TypeList::tail>::list;
     using head = typename list::head;
     using tail = typename list::tail;
@@ -142,6 +162,7 @@ namespace FunctionalCpp
   template <size_t N, class TypeList>
   struct take_types
   {
+    static_assert(N < TypeList::size, "taking_types<N, TypeList>: Taking more types than the size of the list.");
     using list = TypeList;
     using head = typename TypeList::head;
     using tail = typename take_types<N - 1, typename TypeList::tail>::list;
@@ -149,7 +170,7 @@ namespace FunctionalCpp
   };
 
   template <class TypeList>
-  struct take_types<1, TypeList>
+  struct take_types<0, TypeList>
   {
     using head = typename TypeList::head;
     using tail = type_empty_list;
