@@ -2,6 +2,8 @@
 #define LIST_HPP
 
 #include "functor.hpp"
+#include "applicative.hpp"
+#include "monoid.hpp"
 #include <list>
 
 namespace FunctionalCpp
@@ -14,6 +16,8 @@ namespace FunctionalCpp
   template < class V >
   using List = std::list< V, std::allocator< V > >;
 
+  // ===
+  // Functor
   template < class Ret, class Arg >
   struct Functor< Function1< Arg, Ret >, List< Arg >, List< Ret > >
   {
@@ -30,6 +34,8 @@ namespace FunctionalCpp
     }
   };
 
+  // ===
+  // Applicative
   template < class Ret, class Arg >
   struct Applicative< List< Function1< Arg, Ret > >, List< Arg >, List< Ret > >
   {
@@ -48,6 +54,34 @@ namespace FunctionalCpp
       return std::move(fb);
     }
   };
+
+  // ===
+  // Monoid
+  template <class Val>
+  struct Monoid< List<Val> >
+  {
+    static List<Val> associate(const List<Val>& m1, const List<Val>& m2)
+    {
+      List<Val> r;
+      for(auto & i: m1)
+        {
+          r.push_back(i);
+        }
+      for(auto & j: m2)
+        {
+          r.push_back(j);
+        }
+
+      return std::move(r);
+    }
+
+    static List<Val> empty()
+    {
+      List<Val> r;
+      return std::move(r);
+    }
+  };
+
 
 } // end namespace FuncA2BalCpp
 

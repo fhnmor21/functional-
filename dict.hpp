@@ -1,7 +1,7 @@
 #ifndef DICT_HPP
 #define DICT_HPP
 
-#include "functor.hpp"
+#include "bifunctor.hpp"
 #include <map>
 
 namespace FunctionalCpp
@@ -11,45 +11,25 @@ namespace FunctionalCpp
   // local implementations / instatiations for STL containers
 
   // instance for std::map
-  template < class V >
-  using Dict = std::map< const std::string, V >;
+  template < class K, class V >
+  using Dict = std::map< K, V >;
 
-  template < class Ret, class Arg >
-  struct Functor< Function1< Arg, Ret >, Dict< Arg >, Dict< Ret > >
+  template < class Ret1, class Arg1, class Ret2, class Arg2 >
+  struct BiFunctor< Function1< Arg1, Ret1 >, Function1< Arg2, Ret2 >, Dict< Arg1, Arg2 >, Dict< Ret1, Ret2  > >
   {
-    static Dict< Ret > fmap(const Function1< Arg, Ret > a2b, const Dict< Arg >& fa)
+    static Dict< Ret1, Ret2 > bimap(const Function1< Arg1, Ret1 > a2c, const Function1< Arg2, Ret2 > b2d, const Dict< Arg1, Arg2 >& fab)
     {
-      Dict< Ret > fb;
+      Dict< Ret1, Ret2 > fcd;
 
-      for(auto& oldVal : fa)
+      for(auto& oldItem : fab)
       {
-        auto newVal = a2b(oldVal.second);
-        fb[oldVal.first].newVal;
+        auto newKey = a2c(oldItem.first);
+        auto newVal = b2d(oldItem.second);
+        fcd[newKey] = newVal;
       }
-      return std::move(fb);
+      return std::move(fcd);
     }
   };
-
-  /* TBD ???
-  template < class Ret, class Arg >
-  struct Applicative< Dict< Function1< Arg, Ret > >, Dict< Arg >, Dict< Ret > >
-  {
-    static Dict< Arg > apply(const Dict< Function1< Arg, Ret > >& fa2b, const Dict< Arg >& fa)
-    {
-      Dict< Ret > fb;
-
-      for(auto& a2b : fa2b)
-      {
-        for(auto& oldVal : fa)
-        {
-          auto newVal = a2b(oldVal.second);
-          fb[oldVal.first].newVal;
-        }
-      }
-      return std::move(fb);
-    }
-  };
-  */
 
 } // end namespace FuncA2BalCpp
 

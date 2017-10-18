@@ -269,43 +269,17 @@ int main()
   std::cout << std::endl;
 
 
-  /*
-  ADict<int> f_da_1; //{{"one",21}, {"two",22}, {"three",23}, {"four",24}, {"five",25}};
-  f_da_1.data[Atom{"one"}] = 21;
-  f_da_1.data[Atom{"two"}] = 22;
-  f_da_1.data[Atom{3}] = 23;
-
-  std::cout << "ADict value @std::string(\"one\") = " << f_da_1[std::string("one")] << std::endl;
-  std::cout << "ADict value @\"two\" = " << f_da_1["two"] << std::endl;
-  std::cout << "ADict value @3 = " << f_da_1[3] << std::endl;
-
-
   // ===
-  // APPLICATTIVE: Dict
-  Dict<int> f_da_2{{Atom{"one"},21}, {Atom{"two"},22}, {Atom{"three"},23}, {Atom{"four"},24},
-  {Atom{"five"},25}};
-  auto f_da2b = fmap(~fp3, f_da_2);
-  //auto f_db_2 = apply(f_da2b, f_da_1);
+  // BiFunctor: Dict
+  Dict<std::string, int> f_dab = {{"one",21}, {"two",22}, {"three",23}, {"four",24}, {"five",25}};
+  Function1<std::string, std::string> fst = [](const std::string& b) { return std::move(std::string("_" + b + "_")); };
+  Function1<int, int> snd = [](int a){ return a+10; };
+  auto f_dcb = bimap(fst, snd, f_dab);
 
-  columns = 5;
-  std::cout << "\nApplicative fmap & apply on Dict\n";
-  std::cout << "fmap(~fp1, f_da_1 = [1..5]) -> f_da_2";
-  std::cout << "\napply(fa2b, f_da_1 = [1..5]) -> f_db_2 =\n : ";
-
-  for (auto & b: f_db_2)
-    {
-      std::cout << b;
-      if (columns == 1)
-        {
-          std::cout << "\n : ";
-          columns = 5;
-        }
-      else
-        {
-          std::cout << " : ";
-          --columns;
-        }
-    }
   std::cout << std::endl;
-  */
+  for(auto & item: f_dcb)
+  {
+    std::cout << item.first << "\t" << item.second << std::endl;
+  }
+
 }

@@ -2,6 +2,8 @@
 #define VECTOR_HPP
 
 #include "functor.hpp"
+#include "applicative.hpp"
+#include "monoid.hpp"
 #include <vector>
 
 namespace FunctionalCpp
@@ -10,10 +12,12 @@ namespace FunctionalCpp
   // ****************************************************************
   // local implementations / instatiations for STL containers
 
-  // instance for std::vector
+  // instances for std::vector
   template < class V >
   using Vector = std::vector< V, std::allocator< V > >;
 
+  // ===
+  // Functor
   template < class Ret, class Arg >
   struct Functor< Function1< Arg, Ret >, Vector< Arg >, Vector< Ret > >
   {
@@ -30,6 +34,8 @@ namespace FunctionalCpp
     }
   };
 
+  // ===
+  // Applicative
   template < class Ret, class Arg >
   struct Applicative< Vector< Function1< Arg, Ret > >, Vector< Arg >, Vector< Ret > >
   {
@@ -46,6 +52,33 @@ namespace FunctionalCpp
         }
       }
       return std::move(fb);
+    }
+  };
+
+  // ===
+  // Monoid
+  template <class Val>
+  struct Monoid< Vector<Val> >
+  {
+    static Vector<Val> associate(const Vector<Val>& m1, const Vector<Val>& m2)
+    {
+      Vector<Val> r;
+      for(auto & i: m1)
+      {
+        r.push_back(i);
+      }
+      for(auto & j: m2)
+      {
+        r.push_back(j);
+      }
+
+      return std::move(r);
+    }
+
+    static Vector<Val> empty()
+    {
+      Vector<Val> r;
+      return std::move(r);
     }
   };
 
