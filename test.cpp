@@ -2,10 +2,11 @@
 #include <iostream>
 
 #include "arrow_utils.hpp"
-#include "dict.hpp"
 #include "functor_utils.hpp"
+#include "dict.hpp"
 #include "list.hpp"
 #include "vector.hpp"
+#include "either.hpp"
 
 using namespace FunctionalCpp;
 
@@ -281,5 +282,19 @@ int main()
   {
     std::cout << item.first << "\t" << item.second << std::endl;
   }
+
+  // ===
+  // Either
+  auto eL = Left<int, bool>(10);
+  auto eR = Right<int, bool>(false);
+  auto eL_val = eL();
+  auto eR_val = eR();
+  std::cout << "\nEither: Left = " << eL_val << " | Right = " << eR_val << std::endl;
+
+
+  // ===
+  // Maybe
+  // auto mbJ = Maybe<int>(10);
+  // auto mbN = Maybe<int>();
 
 }
