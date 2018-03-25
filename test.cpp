@@ -293,6 +293,23 @@ int main()
 
 
   // ===
+  // Other
+  auto utL = ST::UnionType<int, bool>(10);
+  auto utR = ST::UnionType<int, bool>(false);
+  int valUtL1 = ST::UTGet<0>::value(utL);
+  int valUtR1 = ST::UTGet<1>::value(utL);
+  int valUtL2 = ST::UTGet<0>::value(utR);
+  int valUtR2 = ST::UTGet<1>::value(utR);
+
+  std::cout << "UnionType valUtL1: " << valUtL1 << std::endl;
+  std::cout << "UnionType valUtR1: " << valUtR1 << std::endl;
+  std::cout << "UnionType valUtL2: " << valUtL2 << std::endl;
+  std::cout << "UnionType valUtR2: " << valUtR2 << std::endl;
+
+  auto oL = Other<char, float>('a', nullptr);
+  auto oR = Other<char, float>(nullptr, 10.5);
+
+  // ===
   // Maybe
   // auto mbJ = Maybe<int>(10);
   // auto mbN = Maybe<int>();

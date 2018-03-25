@@ -7,6 +7,30 @@ namespace FunctionalCpp
 {
 
   template < class L, class R >
+  struct Other : ST::UnionType<L, R>
+  {
+    const unsigned short Type;
+
+    // SubTypes
+    constexpr static unsigned short  LEFT = 0;
+    constexpr static unsigned short RIGHT = 1;
+
+    constexpr explicit Other(L l_, void* v)
+      : ST::UnionType<L, R>(l_)
+      , Type(LEFT) {};
+    constexpr explicit Other(void* v, R r_)
+      : ST::UnionType<L, R>(r_)
+      , Type(RIGHT) {};
+    /*
+    const R operator()()
+    {
+      return ST::UTGet<Type>::value(this);
+    }
+    */
+  };
+
+
+  template < class L, class R >
   struct Either: SumType<L, R>
   {
   public:
