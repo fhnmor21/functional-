@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <type_traits>
 
 // Sum Types
@@ -203,6 +202,7 @@ protected:
 };
 
 /* TEST
+#include <cstdio>
 int main()
 {
     bool test =  false;
